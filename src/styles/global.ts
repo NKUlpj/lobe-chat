@@ -1,13 +1,16 @@
 import { Theme, css } from 'antd-style';
+import LXGWWenKai from './LXGWWenKai.ttf';
 
 // fix ios input keyboard
 // overflow: hidden;
 // ref: https://zhuanlan.zhihu.com/p/113855026
 export default ({ token }: { prefixCls: string; token: Theme }) => css`
   @font-face {
-    font-family: LXGWWenKai;
-    src: url("https://qiniu.hwater.site/nirvana/LXGWWenKai.ttf");
-  }
+  font-family: 'LXGWWenKai';
+  src: url(${LXGWWenKai}) format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
   html,
   body,
   #__next {
