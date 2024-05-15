@@ -7,7 +7,7 @@ import LXGWWenKai from './LXGWWenKai.ttf';
 export default ({ token }: { prefixCls: string; token: Theme }) => css`
   @font-face {
   font-family: "LXGWWenKai";
-  src: url(${LXGWWenKai}) format('truetype');
+  src: url(${LXGWWenKai}) format("truetype");
   font-weight: normal;
   font-style: normal;
 }
