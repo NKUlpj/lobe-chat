@@ -4,7 +4,7 @@ import { Theme, css } from 'antd-style';
 // overflow: hidden;
 // ref: https://zhuanlan.zhihu.com/p/113855026
 export default ({ token }: { prefixCls: string; token: Theme }) => css`
-  @import url("https://cdn.jsdelivr.net/npm/cn-fontsource-lxgw-wen-kai-gb-screen@1.0.6/font.min.css")
+  @import url("https://cdn.jsdelivr.net/npm/cn-fontsource-lxgw-wen-kai-gb-screen@1.0.6/font.min.css");
   html,
   body,
   #__next {
