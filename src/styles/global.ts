@@ -6,7 +6,7 @@ import LXGWWenKai from './LXGWWenKai.ttf';
 // ref: https://zhuanlan.zhihu.com/p/113855026
 export default ({ token }: { prefixCls: string; token: Theme }) => css`
   @font-face {
-  font-family: 'LXGWWenKai';
+  font-family: "LXGWWenKai";
   src: url(${LXGWWenKai}) format('truetype');
   font-weight: normal;
   font-style: normal;
