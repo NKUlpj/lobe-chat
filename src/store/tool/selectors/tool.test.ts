@@ -123,7 +123,7 @@ describe('toolSelectors', () => {
         {
           type: 'function',
           function: {
-            name: 'long-long-plugin-with-id____MD5HASH_396eae4c671da3fb642c49ad2b9e8790',
+            name: 'long-long-plugin-with-id____MD5HASH_396eae4c671da3fb',
           },
         },
       ]);
@@ -154,7 +154,7 @@ describe('toolSelectors', () => {
     });
   });
 
-  describe('getPluginManifestLoadingStatus', () => {
+  describe('getToolManifestLoadingStatus', () => {
     it('should return "loading" if the plugin manifest is being loaded', () => {
       const result = toolSelectors.getManifestLoadingStatus('plugin-2')(mockState);
       expect(result).toBe('loading');
@@ -185,6 +185,8 @@ describe('toolSelectors', () => {
           identifier: 'plugin-1',
           type: 'plugin',
           meta: { title: 'Plugin 1', description: 'Plugin 1 description' },
+          title: 'Plugin 1',
+          description: 'Plugin 1 description',
         },
         {
           type: 'plugin',
@@ -228,6 +230,20 @@ describe('toolSelectors', () => {
       expect(toolSelectors.getManifestLoadingStatus('plugin-1')(mockState)).toBe('success');
       expect(toolSelectors.getManifestLoadingStatus('plugin-2')(mockState)).toBe('loading');
       expect(toolSelectors.getManifestLoadingStatus('non-existent')(mockState)).toBe('error');
+    });
+  });
+
+  describe('isToolHasUI', () => {
+    it('should return false if the tool has no UI', () => {
+      expect(toolSelectors.isToolHasUI('plugin-1')(mockState)).toBe(false);
+    });
+
+    it('should return true if the tool has UI', () => {
+      expect(toolSelectors.isToolHasUI('builtin-1')(mockState)).toBe(true);
+    });
+
+    it('should return false if the tool does not exist', () => {
+      expect(toolSelectors.isToolHasUI('non-existent')(mockState)).toBe(false);
     });
   });
 });

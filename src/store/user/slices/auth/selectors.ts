@@ -1,21 +1,33 @@
+import { BRANDING_NAME, isDesktop } from '@lobechat/const';
+import { LobeUser } from '@lobechat/types';
 import { t } from 'i18next';
 
-import { enableClerk } from '@/const/auth';
-import { UserStore } from '@/store/user';
-import { LobeUser } from '@/types/user';
+import { enableAuth, enableClerk, enableNextAuth } from '@/const/auth';
+import type { UserStore } from '@/store/user';
 
-const DEFAULT_USERNAME = 'LobeChat';
+const DEFAULT_USERNAME = BRANDING_NAME;
 
 const nickName = (s: UserStore) => {
-  if (!s.enableAuth()) return t('userPanel.defaultNickname', { ns: 'common' });
+  const defaultNickName = s.user?.fullName || s.user?.username;
+  if (!enableAuth) {
+    if (isDesktop) {
+      return defaultNickName;
+    }
+    return t('userPanel.defaultNickname', { ns: 'common' });
+  }
 
-  if (s.isSignedIn) return s.user?.fullName || s.user?.username;
+  if (s.isSignedIn) return defaultNickName;
 
   return t('userPanel.anonymousNickName', { ns: 'common' });
 };
 
 const username = (s: UserStore) => {
-  if (!s.enableAuth()) return DEFAULT_USERNAME;
+  if (!enableAuth) {
+    if (isDesktop) {
+      return s.user?.username;
+    }
+    return DEFAULT_USERNAME;
+  }
 
   if (s.isSignedIn) return s.user?.username;
 
@@ -23,6 +35,9 @@ const username = (s: UserStore) => {
 };
 
 export const userProfileSelectors = {
+  displayUserName: (s: UserStore): string => username(s) || s.user?.email || '',
+  email: (s: UserStore): string => s.user?.email || '',
+  fullName: (s: UserStore): string => s.user?.fullName || '',
   nickName,
   userAvatar: (s: UserStore): string => s.user?.avatar || '',
   userId: (s: UserStore) => s.user?.id,
@@ -35,7 +50,7 @@ export const userProfileSelectors = {
  */
 const isLogin = (s: UserStore) => {
   // 如果没有开启鉴权，说明不需要登录，默认是登录态
-  if (!s.enableAuth()) return true;
+  if (!enableAuth) return true;
 
   return s.isSignedIn;
 };
@@ -45,4 +60,5 @@ export const authSelectors = {
   isLogin,
   isLoginWithAuth: (s: UserStore) => s.isSignedIn,
   isLoginWithClerk: (s: UserStore): boolean => (s.isSignedIn && enableClerk) || false,
+  isLoginWithNextAuth: (s: UserStore): boolean => (s.isSignedIn && !!enableNextAuth) || false,
 };

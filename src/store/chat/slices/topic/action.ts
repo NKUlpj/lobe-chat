@@ -1,21 +1,22 @@
 /* eslint-disable sort-keys-fix/sort-keys-fix, typescript-sort-keys/interface */
 // Note: To make the code more logic and readable, we just disable the auto sort key eslint rule
 // DON'T REMOVE THE FIRST LINE
+import { chainSummaryTitle } from '@lobechat/prompts';
+import { TraceNameMap } from '@lobechat/types';
 import isEqual from 'fast-deep-equal';
 import { t } from 'i18next';
 import useSWR, { SWRResponse, mutate } from 'swr';
 import { StateCreator } from 'zustand/vanilla';
 
-import { chainSummaryTitle } from '@/chains/summaryTitle';
 import { message } from '@/components/AntdStaticMethods';
 import { LOADING_FLAT } from '@/const/message';
-import { TraceNameMap } from '@/const/trace';
 import { useClientDataSWR } from '@/libs/swr';
 import { chatService } from '@/services/chat';
 import { messageService } from '@/services/message';
 import { topicService } from '@/services/topic';
 import { CreateTopicParams } from '@/services/topic/type';
 import type { ChatStore } from '@/store/chat';
+import { globalHelpers } from '@/store/global/helpers';
 import { useUserStore } from '@/store/user';
 import { systemAgentSelectors } from '@/store/user/selectors';
 import { ChatMessage } from '@/types/message';
@@ -48,7 +49,7 @@ export interface ChatTopicAction {
   summaryTopicTitle: (topicId: string, messages: ChatMessage[]) => Promise<void>;
   switchTopic: (id?: string, skipRefreshMessage?: boolean) => Promise<void>;
   updateTopicTitle: (id: string, title: string) => Promise<void>;
-  useFetchTopics: (sessionId: string) => SWRResponse<ChatTopic[]>;
+  useFetchTopics: (enable: boolean, sessionId: string) => SWRResponse<ChatTopic[]>;
   useSearchTopics: (keywords?: string, sessionId?: string) => SWRResponse<ChatTopic[]>;
 
   internal_updateTopicTitleInSummary: (id: string, title: string) => void;
@@ -79,12 +80,12 @@ export const chatTopic: StateCreator<
   createTopic: async () => {
     const { activeId, internal_createTopic } = get();
 
-    const messages = chatSelectors.currentChats(get());
+    const messages = chatSelectors.activeBaseChats(get());
 
     set({ creatingTopic: true }, false, n('creatingTopic/start'));
     const topicId = await internal_createTopic({
       sessionId: activeId,
-      title: t('topic.defaultTitle', { ns: 'chat' }),
+      title: t('defaultTitle', { ns: 'topic' }),
       messages: messages.map((m) => m.id),
     });
     set({ creatingTopic: false }, false, n('creatingTopic/end'));
@@ -94,7 +95,7 @@ export const chatTopic: StateCreator<
 
   saveToTopic: async () => {
     // if there is no message, stop
-    const messages = chatSelectors.currentChats(get());
+    const messages = chatSelectors.activeBaseChats(get());
     if (messages.length === 0) return;
 
     const { activeId, summaryTopicTitle, internal_createTopic } = get();
@@ -102,7 +103,7 @@ export const chatTopic: StateCreator<
     // 1. create topic and bind these messages
     const topicId = await internal_createTopic({
       sessionId: activeId,
-      title: t('topic.defaultTitle', { ns: 'chat' }),
+      title: t('defaultTitle', { ns: 'topic' }),
       messages: messages.map((m) => m.id),
     });
 
@@ -122,7 +123,7 @@ export const chatTopic: StateCreator<
     const newTitle = t('duplicateTitle', { ns: 'chat', title: topic?.title });
 
     message.loading({
-      content: t('topic.duplicateLoading', { ns: 'chat' }),
+      content: t('duplicateLoading', { ns: 'topic' }),
       key: 'duplicateTopic',
       duration: 0,
     });
@@ -130,7 +131,7 @@ export const chatTopic: StateCreator<
     const newTopicId = await topicService.cloneTopic(id, newTitle);
     await refreshTopic();
     message.destroy('duplicateTopic');
-    message.success(t('topic.duplicateSuccess', { ns: 'chat' }));
+    message.success(t('duplicateSuccess', { ns: 'topic' }));
 
     await switchTopic(newTopicId);
   },
@@ -167,7 +168,7 @@ export const chatTopic: StateCreator<
 
         internal_updateTopicTitleInSummary(topicId, output);
       },
-      params: merge(topicConfig, chainSummaryTitle(messages)),
+      params: merge(topicConfig, chainSummaryTitle(messages, globalHelpers.getCurrentLanguage())),
       trace: get().getCurrentTracePayload({ traceName: TraceNameMap.SummaryTopicTitle, topicId }),
     });
   },
@@ -190,9 +191,9 @@ export const chatTopic: StateCreator<
   },
 
   // query
-  useFetchTopics: (sessionId) =>
+  useFetchTopics: (enable, sessionId) =>
     useClientDataSWR<ChatTopic[]>(
-      [SWR_USE_FETCH_TOPIC, sessionId],
+      enable ? [SWR_USE_FETCH_TOPIC, sessionId] : null,
       async ([, sessionId]: [string, string]) => topicService.getTopics({ sessionId }),
       {
         suspense: true,
@@ -218,12 +219,20 @@ export const chatTopic: StateCreator<
         topicService.searchTopics(keywords, sessionId),
       {
         onSuccess: (data) => {
-          set({ searchTopics: data }, false, n('useSearchTopics(success)', { keywords }));
+          set(
+            { searchTopics: data, isSearchingTopic: false },
+            false,
+            n('useSearchTopics(success)', { keywords }),
+          );
         },
       },
     ),
   switchTopic: async (id, skipRefreshMessage) => {
-    set({ activeTopicId: !id ? (null as any) : id }, false, n('toggleTopic'));
+    set(
+      { activeTopicId: !id ? (null as any) : id, activeThreadId: undefined },
+      false,
+      n('toggleTopic'),
+    );
 
     if (skipRefreshMessage) return;
     await get().refreshMessages();
@@ -249,7 +258,7 @@ export const chatTopic: StateCreator<
 
     // remove messages in the topic
     // TODO: Need to remove because server service don't need to call it
-    await messageService.removeMessages(activeId, id);
+    await messageService.removeMessagesByAssistant(activeId, id);
 
     // remove topic
     await topicService.removeTopic(id);

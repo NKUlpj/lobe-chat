@@ -6,13 +6,14 @@
     "chat": "Chat-Präferenz",
     "meta": "Assistenteninformation",
     "modal": "Modell-Einstellungen",
+    "opening": "Eröffnungs Einstellungen",
     "plugin": "Plugin-Einstellungen",
     "prompt": "Rollenkonfiguration",
     "tts": "Sprachdienst"
   },
   "analytics": {
     "telemetry": {
-      "desc": "Durch das Senden von Telemetriedaten können Sie uns dabei helfen, die Gesamtnutzererfahrung von LobeChat zu verbessern",
+      "desc": "Indem du die Übertragung von Telemetriedaten auswählst, kannst du uns helfen, das Gesamterlebnis der Nutzer von {{appName}} zu verbessern.",
       "title": "Anonyme Nutzungsdaten senden"
     },
     "title": "Analytics"
@@ -42,7 +43,30 @@
     "sessionWithName": "Sitzungseinstellungen · {{name}}",
     "title": "Einstellungen"
   },
+  "hotkey": {
+    "conflicts": "Konflikte mit bestehenden Tastenkombinationen",
+    "errors": {
+      "CONFLICT": "Tastenkonflikt: Diese Tastenkombination wird bereits von einer anderen Funktion verwendet",
+      "INVALID_FORMAT": "Ungültiges Tastenkürzel-Format: Bitte verwenden Sie das korrekte Format (z. B. CommandOrControl+E)",
+      "INVALID_ID": "Ungültige Tastenkürzel-ID",
+      "NO_MODIFIER": "Das Tastenkürzel muss einen Modifikatortaste enthalten (Strg, Alt, Shift usw.)",
+      "SYSTEM_OCCUPIED": "Das Tastenkürzel wird vom System oder einer anderen Anwendung verwendet",
+      "UNKNOWN": "Aktualisierung fehlgeschlagen: Unbekannter Fehler"
+    },
+    "group": {
+      "conversation": "Gespräch",
+      "desktop": "Desktop",
+      "essential": "Grundlegend"
+    },
+    "invalidCombination": "Die Tastenkombination muss mindestens einen Modifikatortaste (Strg, Alt, Umschalt) und eine normale Taste enthalten",
+    "record": "Drücken Sie eine Taste, um die Tastenkombination aufzuzeichnen",
+    "reset": "Auf die Standard-Tastenkombination zurücksetzen",
+    "title": "Tastenkombinationen",
+    "updateError": "Tastenkürzel-Aktualisierung fehlgeschlagen: Netzwerk- oder Systemfehler",
+    "updateSuccess": "Tastenkürzel erfolgreich aktualisiert"
+  },
   "llm": {
+    "aesGcm": "Ihr Schlüssel und Ihre Proxy-Adresse werden mit dem <1>AES-GCM</1> Verschlüsselungsalgorithmus verschlüsselt.",
     "apiKey": {
       "desc": "Bitte geben Sie Ihren {{name}} API-Schlüssel ein",
       "placeholder": "{{name}} API-Schlüssel",
@@ -69,11 +93,11 @@
           "title": "Modellanzeigename"
         },
         "files": {
-          "extra": "Die aktuelle Implementierung des Datei-Uploads in LobeChat ist nur eine Hack-Lösung und nur für eigene Versuche gedacht. Die vollständige Datei-Upload-Funktion wird in zukünftigen Versionen implementiert.",
+          "extra": "Die aktuelle Datei-Upload-Implementierung ist lediglich eine Hack-Lösung und nur für eigene Versuche gedacht. Bitte warte auf die vollständige Implementierung der Datei-Upload-Funktionalität.",
           "title": "Datei-Upload unterstützen"
         },
         "functionCall": {
-          "extra": "Diese Konfiguration aktiviert nur die Funktion zum Aufrufen von Funktionen in LobeChat. Die Unterstützung von Funktionsaufrufen hängt vollständig von dem Modell selbst ab. Bitte testen Sie die Verfügbarkeit der Funktionsaufrufe des Modells selbst.",
+          "extra": "Diese Konfiguration aktiviert nur die Funktion zum Aufrufen von Funktionen innerhalb der Anwendung. Ob die Funktionalität zum Aufrufen von Funktionen unterstützt wird, hängt vollständig vom Modell selbst ab. Bitte teste die Verwendbarkeit der Funktionalität des Modells selbst.",
           "title": "Funktionsaufrufe unterstützen"
         },
         "id": {
@@ -83,11 +107,10 @@
         },
         "modalTitle": "Benutzerdefinierte Modellkonfiguration",
         "tokens": {
-          "title": "Maximale Token-Anzahl",
-          "unlimited": "unbegrenzt"
+          "title": "Maximale Token-Anzahl"
         },
         "vision": {
-          "extra": "Diese Konfiguration aktiviert nur die Bild-Upload-Konfiguration in LobeChat. Die Unterstützung der Erkennung hängt vollständig von dem Modell selbst ab. Bitte testen Sie die Verfügbarkeit der visuellen Erkennungsfähigkeiten des Modells selbst.",
+          "extra": "Diese Konfiguration aktiviert nur die Bild-Upload-Einstellungen innerhalb der Anwendung. Ob die Erkennung unterstützt wird, hängt vollständig vom Modell selbst ab. Bitte teste die Verwendbarkeit der visuellen Erkennungsfähigkeit des Modells selbst.",
           "title": "Visuelle Erkennung unterstützen"
         }
       }
@@ -97,11 +120,13 @@
       "title": "Client Fetch-Modus verwenden"
     },
     "fetcher": {
+      "clear": "Abgerufenes Modell löschen",
       "fetch": "Modelle abrufen",
       "fetching": "Modelle werden abgerufen...",
       "latestTime": "Letzte Aktualisierung: {{time}}",
       "noLatestTime": "Liste noch nicht abgerufen"
     },
+    "helpDoc": "Konfigurationsanleitung",
     "modelList": {
       "desc": "Wählen Sie die Modelle aus, die in der Sitzung angezeigt werden sollen. Die ausgewählten Modelle werden in der Modellliste angezeigt.",
       "placeholder": "Wählen Sie ein Modell aus der Liste aus",
@@ -112,9 +137,10 @@
       "desc": "Außer der Standardadresse muss http(s):// enthalten sein",
       "title": "API-Proxy-Adresse"
     },
-    "waitingForMore": "Weitere Modelle werden <1>geplant</1>, bitte freuen Sie sich auf weitere Updates ✨"
+    "waitingForMore": "Weitere Modelle werden <1>geplant</1>, bitte freuen Sie sich auf weitere Updates"
   },
   "plugin": {
+    "addMCPPlugin": "MCP-Plugin hinzufügen",
     "addTooltip": "Benutzerdefiniertes Plugin",
     "clearDeprecated": "Entfernen Sie ungültige Plugins",
     "empty": "Keine installierten Plugins vorhanden. Besuchen Sie den <1>Plugin-Store</1>, um mehr zu entdecken.",
@@ -136,6 +162,7 @@
       "title": "Hintergrundfarbe"
     },
     "description": {
+      "desc": "Eine kurze Einführung in deinen Assistenten, nicht als Rolleneinstellung",
       "placeholder": "Bitte geben Sie eine Assistentenbeschreibung ein",
       "title": "Assistentenbeschreibung"
     },
@@ -147,11 +174,38 @@
       "placeholder": "Bitte geben Sie das Rollen-Prompt-Wort ein",
       "title": "Rollen-Einstellung"
     },
+    "submit": "Assistenteninformationen aktualisieren",
     "tag": {
+      "desc": "Die Assistenten-Tags werden im Assistentenmarkt angezeigt",
       "placeholder": "Bitte geben Sie ein Tag ein",
       "title": "Tag"
     },
     "title": "Assistenteninformationen"
+  },
+  "settingAppearance": {
+    "animationMode": {
+      "agile": "Agil",
+      "desc": "Wählen Sie die Animationsgeschwindigkeit für die Reaktion der Anwendung",
+      "disabled": "Aus",
+      "elegant": "Elegant",
+      "title": "Reaktionsanimation"
+    },
+    "neutralColor": {
+      "desc": "Anpassung der Graustufen mit unterschiedlichen Farbneigungen",
+      "title": "Neutrale Farben"
+    },
+    "noAnimation": {
+      "desc": "Deaktivieren Sie alle Animationseffekte in der Anwendung",
+      "title": "Kein Animationsmodus"
+    },
+    "preview": {
+      "title": "Farbauswahl"
+    },
+    "primaryColor": {
+      "desc": "Benutzerdefinierte Hauptfarbe",
+      "title": "Hauptfarbe"
+    },
+    "title": "Anwendungsdesign"
   },
   "settingChat": {
     "autoCreateTopicThreshold": {
@@ -173,8 +227,8 @@
       "desc": "Automatische Erstellung eines Themas während des Gesprächs, nur in temporären Themen aktiv",
       "title": "Automatische Themen-Erstellung aktivieren"
     },
-    "enableCompressThreshold": {
-      "title": "Aktivieren der Komprimierungsschwelle für Historienlänge"
+    "enableCompressHistory": {
+      "title": "Automatische Zusammenfassung der Verlaufnachrichten aktivieren"
     },
     "enableHistoryCount": {
       "alias": "Unbegrenzt",
@@ -182,6 +236,10 @@
       "setlimited": "Setzen Sie die begrenzte Anzahl von Nachrichten",
       "title": "Historiennachrichten begrenzen",
       "unlimited": "Unbegrenzte Historiennachrichten"
+    },
+    "enableStreaming": {
+      "desc": "Aktivieren Sie den Streaming-Ausgang, um Antworten in Echtzeit anzuzeigen. Wenn deaktiviert, wird nur die vollständige Antwort angezeigt.",
+      "title": "Streaming-Ausgabe aktivieren"
     },
     "historyCount": {
       "desc": "Anzahl der Nachrichten pro Anfrage (einschließlich der neuesten Fragen und Antworten. Jede Frage und Antwort zählt als 1)",
@@ -192,44 +250,111 @@
       "placeholder": "Vorlagen-{{text}} werden durch Echtzeit-Eingabeinformationen ersetzt",
       "title": "Benutzereingabe-Vorverarbeitung"
     },
+    "submit": "Chat-Präferenzen aktualisieren",
     "title": "Chat-Einstellungen"
+  },
+  "settingChatAppearance": {
+    "fontSize": {
+      "desc": "Schriftgröße des Chatinhalts",
+      "marks": {
+        "normal": "Standard"
+      },
+      "title": "Schriftgröße"
+    },
+    "highlighterTheme": {
+      "title": "Code-Hervorhebungsthema"
+    },
+    "mermaidTheme": {
+      "title": "Mermaid-Thema"
+    },
+    "title": "Chatdesign",
+    "transitionMode": {
+      "desc": "Übergangsanimation der Chatnachrichten",
+      "options": {
+        "fadeIn": "Einblenden",
+        "none": {
+          "desc": "Dies hängt von der Art der Antwort des Modells ab, bitte testen Sie es selbst.",
+          "value": "Keine"
+        },
+        "smooth": "Sanft"
+      },
+      "title": "Übergangsanimation"
+    }
+  },
+  "settingCommon": {
+    "lang": {
+      "autoMode": "System folgen",
+      "title": "Sprache"
+    },
+    "themeMode": {
+      "auto": "Automatisch",
+      "dark": "Dunkel",
+      "light": "Hell",
+      "title": "Thema"
+    },
+    "title": "Allgemeine Einstellungen"
   },
   "settingModel": {
     "enableMaxTokens": {
       "title": "Maximale Token pro Antwort aktivieren"
     },
+    "enableReasoningEffort": {
+      "title": "Aktivieren der Anpassung der Schlussfolgerungsintensität"
+    },
     "frequencyPenalty": {
-      "desc": "Je höher der Wert, desto wahrscheinlicher ist es, dass sich wiederholende Wörter reduziert werden",
-      "title": "Frequenzstrafe"
+      "desc": "Je höher der Wert, desto vielfältiger und abwechslungsreicher die Wortwahl; je niedriger der Wert, desto einfacher und schlichter die Wortwahl",
+      "title": "Wortvielfalt"
     },
     "maxTokens": {
       "desc": "Maximale Anzahl von Tokens, die pro Interaktion verwendet werden",
       "title": "Maximale Token pro Antwort"
     },
     "model": {
-      "desc": "ChatGPT-Modell",
-      "list": {
-        "gpt-3.5-turbo": "GPT 3.5",
-        "gpt-3.5-turbo-16k": "GPT 3.5 (16K)",
-        "gpt-4": "GPT 4",
-        "gpt-4-32k": "GPT 4 (32K)"
-      },
+      "desc": "{{provider}} Modell",
       "title": "Modell"
     },
+    "params": {
+      "title": "Erweiterte Parameter"
+    },
     "presencePenalty": {
-      "desc": "Je höher der Wert, desto wahrscheinlicher ist es, dass sich das Gespräch auf neue Themen ausweitet",
-      "title": "Themenfrische"
+      "desc": "Je höher der Wert, desto eher werden unterschiedliche Ausdrucksweisen bevorzugt, um Wiederholungen zu vermeiden; je niedriger der Wert, desto eher werden wiederholte Konzepte oder Erzählungen verwendet, was zu einer konsistenteren Ausdrucksweise führt",
+      "title": "Ausdrucksvielfalt"
     },
+    "reasoningEffort": {
+      "desc": "Je höher der Wert, desto stärker die Schlussfolgerungsfähigkeit, kann jedoch die Antwortzeit und den Token-Verbrauch erhöhen",
+      "options": {
+        "high": "Hoch",
+        "low": "Niedrig",
+        "medium": "Mittel"
+      },
+      "title": "Schlussfolgerungsintensität"
+    },
+    "submit": "Modell-Einstellungen aktualisieren",
     "temperature": {
-      "desc": "Je höher der Wert, desto zufälliger die Antwort",
-      "title": "Zufälligkeit",
-      "titleWithValue": "Zufälligkeit {{value}}"
+      "desc": "Je höher der Wert, desto kreativer und einfallsreicher die Antworten; je niedriger der Wert, desto strenger die Antworten",
+      "title": "Kreativitätsgrad",
+      "warning": "Ein zu hoher Kreativitätsgrad kann zu unverständlichen Ausgaben führen"
     },
-    "title": "Modelleinstellungen",
+    "title": "Modell Einstellungen",
     "topP": {
-      "desc": "Ähnlich wie Zufälligkeit, aber nicht zusammen mit Zufälligkeit ändern",
-      "title": "Top-P-Sampling"
+      "desc": "Wie viele Möglichkeiten in Betracht gezogen werden, je höher der Wert, desto mehr mögliche Antworten werden akzeptiert; je niedriger der Wert, desto eher wird die wahrscheinlichste Antwort gewählt. Es wird nicht empfohlen, dies zusammen mit dem Kreativitätsgrad zu ändern",
+      "title": "Offenheit des Denkens"
     }
+  },
+  "settingOpening": {
+    "openingMessage": {
+      "desc": "Die Eröffnungsnachricht beim Start des Gesprächs, um die Funktionen des Assistenten vorzustellen",
+      "placeholder": "Hallo, ich bin der benutzerdefinierte Assistent. Du kannst sofort mit mir sprechen oder zu den Assistenteneinstellungen gehen, um meine Informationen zu vervollständigen.",
+      "title": "Eröffnungsnachricht"
+    },
+    "openingQuestions": {
+      "desc": "Leitfragen, die zu Beginn des Gesprächs angezeigt werden",
+      "empty": "Keine Fragen vorhanden",
+      "placeholder": "Bitte Frage eingeben",
+      "repeat": "Frage existiert bereits",
+      "title": "Eröffnungsfragen"
+    },
+    "title": "Eröffnungs Einstellungen"
   },
   "settingPlugin": {
     "title": "Plugin-Liste"
@@ -281,6 +406,7 @@
       "desc": "Browser ist ein nativer Spracherkennungsdienst des Browsers",
       "title": "Spracherkennungsdienst"
     },
+    "submit": "Sprachdienst aktualisieren",
     "title": "Sprachdienste",
     "tts": "Sprachsynthese-Einstellungen",
     "ttsService": {
@@ -293,36 +419,32 @@
       "title": "Sprachsynthese-Stimme"
     }
   },
-  "settingTheme": {
-    "avatar": {
-      "title": "Profilbild"
-    },
-    "fontSize": {
-      "desc": "Schriftgröße für Chat-Inhalte",
-      "marks": {
-        "normal": "Normal"
+  "storage": {
+    "actions": {
+      "export": {
+        "button": "Exportieren",
+        "exportType": {
+          "agent": "Exportiere Assistenteneinstellungen",
+          "agentWithMessage": "Exportiere Assistenten und Nachrichten",
+          "all": "Exportiere globale Einstellungen und alle Assistentendaten",
+          "allAgent": "Exportiere alle Assistenteneinstellungen",
+          "allAgentWithMessage": "Exportiere alle Assistenten und Nachrichten",
+          "globalSetting": "Exportiere globale Einstellungen"
+        },
+        "title": "Daten exportieren"
       },
-      "title": "Schriftgröße"
+      "import": {
+        "button": "Importieren",
+        "title": "Daten importieren"
+      },
+      "title": "Erweiterte Aktionen"
     },
-    "lang": {
-      "autoMode": "Systemsprache folgen",
-      "title": "Sprache"
+    "desc": "Speicherverbrauch im aktuellen Browser",
+    "embeddings": {
+      "used": "Vektorspeicher"
     },
-    "neutralColor": {
-      "desc": "Benutzerdefinierte Graustufen für verschiedene Farbneigungen",
-      "title": "Neutralfarbe"
-    },
-    "primaryColor": {
-      "desc": "Benutzerdefinierte Hauptfarbe des Themas",
-      "title": "Hauptfarbe"
-    },
-    "themeMode": {
-      "auto": "Automatisch",
-      "dark": "Dunkel",
-      "light": "Hell",
-      "title": "Thema"
-    },
-    "title": "Thema einstellen"
+    "title": "Datenspeicher",
+    "used": "Speicherverbrauch"
   },
   "submitAgentModal": {
     "button": "Assistent einreichen",
@@ -330,6 +452,12 @@
     "metaMiss": "Bitte vervollständigen Sie die Assistenteninformationen, einschließlich Name, Beschreibung und Tags, bevor Sie sie einreichen.",
     "placeholder": "Geben Sie die Kennung des Assistenten ein, die eindeutig sein muss, z. B. Web-Entwicklung",
     "tooltips": "Auf dem Assistentenmarkt teilen"
+  },
+  "submitFooter": {
+    "reset": "Zurücksetzen",
+    "submit": "Speichern",
+    "unSaved": "Nicht gespeicherte Änderungen",
+    "unSavedWarning": "Es gibt derzeit nicht gespeicherte Änderungen"
   },
   "sync": {
     "device": {
@@ -343,7 +471,7 @@
       "unknownOS": "Unbekanntes Betriebssystem"
     },
     "warning": {
-      "message": "Diese Funktion ist derzeit experimentell und kann unerwartete oder instabile Situationen aufweisen. Bitte geben Sie bei Problemen rechtzeitig Feedback ab."
+      "tip": "Nach einer längeren Phase des Community-Tests kann die WebRTC-Synchronisierung möglicherweise nicht stabil genug sein, um allgemeine Synchronisierungsanforderungen zu erfüllen. Bitte <1>richten Sie einen Signalisierungsserver ein</1> und verwenden Sie ihn dann."
     },
     "webrtc": {
       "channelName": {
@@ -359,13 +487,50 @@
       },
       "desc": "Echtzeit, Punkt-zu-Punkt-Datenkommunikation, bei der die Geräte gleichzeitig online sein müssen, um synchronisiert zu werden",
       "enabled": {
-        "invalid": "Bitte geben Sie zuerst den Synchronisierungskanalnamen ein, bevor Sie die Synchronisierung aktivieren",
+        "invalid": "Bitte geben Sie zuerst den Signalisierungsserver und den Synchronisierungskanal an, bevor Sie dies aktivieren.",
         "title": "Synchronisierung aktivieren"
+      },
+      "signaling": {
+        "desc": "WebRTC wird diese Adresse für die Synchronisierung verwenden",
+        "placeholder": "Bitte geben Sie die Adresse des Signalisierungsservers ein",
+        "title": "Signalisierungsserver"
       },
       "title": "WebRTC-Synchronisierung"
     }
   },
   "systemAgent": {
+    "agentMeta": {
+      "label": "Assistentenmetadaten-Generierungsmodell",
+      "modelDesc": "Das Modell, das zur Generierung von Assistentennamen, -beschreibungen, -avatars und -tags verwendet wird",
+      "title": "Automatische Generierung von Assistenteninformationen"
+    },
+    "customPrompt": {
+      "addPrompt": "Benutzerdefinierte Eingabe hinzufügen",
+      "desc": "Nachdem Sie dies ausgefüllt haben, verwendet der Systemassistent die benutzerdefinierte Eingabe zur Generierung von Inhalten",
+      "placeholder": "Bitte benutzerdefinierte Eingabe eingeben",
+      "title": "Benutzerdefinierte Eingabe"
+    },
+    "generationTopic": {
+      "label": "Modell zur Benennung von KI-Malthemen",
+      "modelDesc": "Modell zur automatischen Benennung von Themen für KI-Malerei",
+      "title": "Automatische Benennung von KI-Malthemen"
+    },
+    "helpInfo": "Beim Erstellen eines neuen Assistenten werden die Standardassistenteneinstellungen als Voreinstellungen verwendet.",
+    "historyCompress": {
+      "label": "Gesprächshistorienmodell",
+      "modelDesc": "Das Modell, das zur Komprimierung der Gesprächshistorie verwendet wird",
+      "title": "Automatische Zusammenfassung der Gesprächshistorie"
+    },
+    "queryRewrite": {
+      "label": "Fragenumformulierung Modell",
+      "modelDesc": "Modell zur Optimierung der Benutzeranfragen",
+      "title": "Wiederformulierung von Fragen aus der Wissensdatenbank"
+    },
+    "thread": {
+      "label": "Unterthema-Namensmodell",
+      "modelDesc": "Modell zur automatischen Umbenennung von Unterthemen",
+      "title": "Automatische Benennung von Unterthemen"
+    },
     "title": "Systemassistent",
     "topic": {
       "label": "Themenbenennungsmodell",
@@ -383,7 +548,11 @@
     "agent": "Standard-Assistent",
     "common": "Allgemeine Einstellungen",
     "experiment": "Experiment",
+    "hotkey": "Tastenkombinationen",
     "llm": "Sprachmodell",
+    "provider": "KI-Dienstanbieter",
+    "proxy": "Netzwerkproxy",
+    "storage": "Datenspeicher",
     "sync": "Cloud-Synchronisierung",
     "system-agent": "Systemassistent",
     "tts": "Sprachdienste"

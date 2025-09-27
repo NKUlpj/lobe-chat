@@ -1,6 +1,7 @@
 import { Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { globalHelpers } from '@/store/user/helpers';
+import { edgeClient } from '@/libs/trpc/client';
+import { globalHelpers } from '@/store/global/helpers';
 
 import { toolService } from '../tool';
 import openAPIV3 from './openai/OpenAPI_V3.json';
@@ -8,9 +9,19 @@ import OpenAIPlugin from './openai/plugin.json';
 
 // Mocking modules and functions
 
-vi.mock('@/store/user/helpers', () => ({
+vi.mock('@/store/global/helpers', () => ({
   globalHelpers: {
     getCurrentLanguage: vi.fn(),
+  },
+}));
+
+vi.mock('@/libs/trpc/client', () => ({
+  edgeClient: {
+    market: {
+      getLegacyPluginList: {
+        query: vi.fn(),
+      },
+    },
   },
 }));
 
@@ -19,38 +30,7 @@ beforeEach(() => {
 });
 
 describe('ToolService', () => {
-  describe('getPluginList', () => {
-    it('should fetch and return the plugin list', async () => {
-      // Arrange
-      const fakeResponse = { plugins: [{ name: 'TestPlugin' }] };
-      (globalHelpers.getCurrentLanguage as Mock).mockReturnValue('tt');
-      global.fetch = vi.fn(() =>
-        Promise.resolve({
-          json: () => Promise.resolve(fakeResponse),
-        }),
-      ) as any;
-
-      // Act
-      const pluginList = await toolService.getPluginList();
-
-      // Assert
-      expect(globalHelpers.getCurrentLanguage).toHaveBeenCalled();
-      expect(fetch).toHaveBeenCalledWith('/api/plugin/store?locale=tt');
-      expect(pluginList).toEqual(fakeResponse);
-    });
-
-    it('should handle fetch error', async () => {
-      // Arrange
-      const fakeUrl = 'http://fake-url.com/plugins.json';
-      (globalHelpers.getCurrentLanguage as Mock).mockReturnValue('en');
-      global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
-
-      // Act & Assert
-      await expect(toolService.getPluginList()).rejects.toThrow('Network error');
-    });
-  });
-
-  describe('getPluginManifest', () => {
+  describe('getToolManifest', () => {
     it('should return manifest', async () => {
       const manifestUrl = 'http://fake-url.com/manifest.json';
 
@@ -98,7 +78,7 @@ describe('ToolService', () => {
         }),
       ) as any;
 
-      const manifest = await toolService.getPluginManifest(manifestUrl);
+      const manifest = await toolService.getToolManifest(manifestUrl);
 
       expect(fetch).toHaveBeenCalledWith(manifestUrl);
       expect(manifest).toEqual(fakeManifest);
@@ -106,7 +86,7 @@ describe('ToolService', () => {
 
     it('should return error on noManifest', async () => {
       try {
-        await toolService.getPluginManifest();
+        await toolService.getToolManifest();
       } catch (e) {
         expect(e).toEqual(new TypeError('noManifest'));
       }
@@ -124,7 +104,7 @@ describe('ToolService', () => {
       ) as any;
 
       try {
-        await toolService.getPluginManifest(manifestUrl);
+        await toolService.getToolManifest(manifestUrl);
       } catch (e) {
         expect(e).toEqual(new TypeError('manifestInvalid'));
       }
@@ -135,31 +115,11 @@ describe('ToolService', () => {
       global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
 
       try {
-        await toolService.getPluginManifest(manifestUrl);
+        await toolService.getToolManifest(manifestUrl);
       } catch (e) {
         expect(e).toEqual(new TypeError('fetchError'));
       }
       expect(fetch).toHaveBeenCalledWith(manifestUrl);
-    });
-
-    it('should return error on manifestInvalid', async () => {
-      const fakeManifest = { name: 'TestPlugin', version: '1.0.0' };
-      const manifestUrl = 'http://fake-url.com/manifest.json';
-      global.fetch = vi.fn(() =>
-        Promise.resolve({
-          headers: new Headers({ 'content-type': 'application/json' }),
-          ok: true,
-          json: () => {
-            throw new Error('abc');
-          },
-        }),
-      ) as any;
-
-      try {
-        await toolService.getPluginManifest(manifestUrl);
-      } catch (e) {
-        expect(e).toEqual(new TypeError('urlError'));
-      }
     });
 
     it('should return error on manifestInvalid', async () => {
@@ -174,7 +134,7 @@ describe('ToolService', () => {
       ) as any;
 
       try {
-        await toolService.getPluginManifest(manifestUrl);
+        await toolService.getToolManifest(manifestUrl);
       } catch (e) {
         expect(e).toEqual(new TypeError('fetchError'));
       }
@@ -214,7 +174,7 @@ describe('ToolService', () => {
           }),
         ) as any;
 
-        const manifest = await toolService.getPluginManifest(manifestUrl);
+        const manifest = await toolService.getToolManifest(manifestUrl);
 
         expect(manifest).toMatchSnapshot();
       });
@@ -252,7 +212,7 @@ describe('ToolService', () => {
         ) as any;
 
         try {
-          await toolService.getPluginManifest(manifestUrl);
+          await toolService.getToolManifest(manifestUrl);
         } catch (e) {
           expect(e).toEqual(new TypeError('openAPIInvalid'));
         }

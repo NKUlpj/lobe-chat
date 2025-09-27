@@ -4,15 +4,16 @@
   },
   "agentTab": {
     "chat": "Chat Preferences",
-    "meta": "Agent Info",
+    "meta": "Assistant Info",
     "modal": "Model Settings",
+    "opening": "Opening Settings",
     "plugin": "Plugin Settings",
     "prompt": "Role Configuration",
     "tts": "Voice Service"
   },
   "analytics": {
     "telemetry": {
-      "desc": "By opting to send telemetry data, you can help us improve the overall user experience of LobeChat",
+      "desc": "By opting to send telemetry data, you can help us improve the overall user experience of {{appName}}.",
       "title": "Send Anonymous Usage Data"
     },
     "title": "Analytics"
@@ -21,7 +22,7 @@
     "clear": {
       "action": "Clear Now",
       "confirm": "Confirm to clear all chat data?",
-      "desc": "This will clear all session data, including agent, files, messages, plugins, etc.",
+      "desc": "This will clear all session data, including assistant, files, messages, plugins, etc.",
       "success": "All session messages have been cleared",
       "title": "Clear All Session Messages"
     },
@@ -42,7 +43,30 @@
     "sessionWithName": "Session Settings · {{name}}",
     "title": "Settings"
   },
+  "hotkey": {
+    "conflicts": "Conflicts with existing hotkeys",
+    "errors": {
+      "CONFLICT": "Hotkey conflict: This hotkey is already assigned to another function",
+      "INVALID_FORMAT": "Invalid hotkey format: Please use the correct format (e.g., CommandOrControl+E)",
+      "INVALID_ID": "Invalid hotkey ID",
+      "NO_MODIFIER": "Hotkey must include a modifier key (Ctrl, Alt, Shift, etc.)",
+      "SYSTEM_OCCUPIED": "Hotkey is occupied by the system or another application",
+      "UNKNOWN": "Update failed: Unknown error"
+    },
+    "group": {
+      "conversation": "Conversation",
+      "desktop": "Desktop",
+      "essential": "Essential"
+    },
+    "invalidCombination": "The hotkey must include at least one modifier key (Ctrl, Alt, Shift) and one regular key",
+    "record": "Press a key to record the hotkey",
+    "reset": "Reset to default hotkeys",
+    "title": "Hotkeys",
+    "updateError": "Failed to update hotkey: Network or system error",
+    "updateSuccess": "Hotkey updated successfully"
+  },
   "llm": {
+    "aesGcm": "Your keys and proxy address will be encrypted using the <1>AES-GCM</1> encryption algorithm",
     "apiKey": {
       "desc": "Please enter your {{name}} API Key",
       "placeholder": "{{name}} API Key",
@@ -50,7 +74,7 @@
     },
     "checker": {
       "button": "Check",
-      "desc": "Test if the Api Key and proxy address are filled in correctly",
+      "desc": "Test if the API Key and proxy address are filled in correctly",
       "pass": "Check Passed",
       "title": "Connectivity Check"
     },
@@ -69,11 +93,11 @@
           "title": "Model Display Name"
         },
         "files": {
-          "extra": "The current file upload implementation in LobeChat is only a hack solution for self-attempt. Please wait for the complete file upload capability in future implementations.",
+          "extra": "The current file upload implementation is merely a hack solution and is intended for personal experimentation only. Please wait for a complete file upload capability in future updates.",
           "title": "Support File Upload"
         },
         "functionCall": {
-          "extra": "This configuration will only enable the function call capability in LobeChat. Whether function calls are supported depends entirely on the model itself. Please test the availability of function calls in this model on your own.",
+          "extra": "This configuration will only enable function calling capabilities within the application. Whether function calling is supported depends entirely on the model itself; please test the model's function calling capabilities on your own.",
           "title": "Support Function Call"
         },
         "id": {
@@ -83,11 +107,10 @@
         },
         "modalTitle": "Custom Model Configuration",
         "tokens": {
-          "title": "Maximum Token Count",
-          "unlimited": "unlimited"
+          "title": "Maximum Token Count"
         },
         "vision": {
-          "extra": "This configuration will only enable the image upload configuration in LobeChat. Whether recognition is supported depends entirely on the model itself. Please test the availability of visual recognition in this model on your own.",
+          "extra": "This configuration will only enable image upload capabilities within the application. Whether recognition is supported depends entirely on the model itself; please test the model's visual recognition capabilities on your own.",
           "title": "Support Visual Recognition"
         }
       }
@@ -97,11 +120,13 @@
       "title": "Use Client-Side Fetching Mode"
     },
     "fetcher": {
+      "clear": "Clear fetched model",
       "fetch": "Get Model List",
       "fetching": "Fetching Model List...",
       "latestTime": "Last Updated: {{time}}",
       "noLatestTime": "No list available yet"
     },
+    "helpDoc": "Configuration Guide",
     "modelList": {
       "desc": "Select the models to display in the session. The selected models will be displayed in the model list.",
       "placeholder": "Please select a model from the list",
@@ -112,9 +137,10 @@
       "desc": "Must include http(s):// in addition to the default address",
       "title": "API Proxy Address"
     },
-    "waitingForMore": "More models are <1>planned to be added</1>, stay tuned ✨"
+    "waitingForMore": "More models are <1>planned to be added</1>, stay tuned"
   },
   "plugin": {
+    "addMCPPlugin": "Add MCP Plugin",
     "addTooltip": "Custom Plugin",
     "clearDeprecated": "Remove Deprecated Plugins",
     "empty": "No installed plugins yet, feel free to explore the <1>Plugin Store</1>",
@@ -136,22 +162,50 @@
       "title": "Background Color"
     },
     "description": {
-      "placeholder": "Enter agent description",
-      "title": "Agent Description"
+      "desc": "A brief introduction to your assistant, not for character setting",
+      "placeholder": "Enter assistant description",
+      "title": "Assistant Description"
     },
     "name": {
-      "placeholder": "Enter agent name",
+      "placeholder": "Enter assistant name",
       "title": "Name"
     },
     "prompt": {
       "placeholder": "Enter role prompt word",
       "title": "Role Setting"
     },
+    "submit": "Update Assistant Information",
     "tag": {
+      "desc": "Assistant tags will be displayed in the assistant marketplace",
       "placeholder": "Enter tag",
       "title": "Tag"
     },
-    "title": "Agent Information"
+    "title": "Assistant Information"
+  },
+  "settingAppearance": {
+    "animationMode": {
+      "agile": "Agile",
+      "desc": "Select the animation speed for application response actions",
+      "disabled": "Off",
+      "elegant": "Elegant",
+      "title": "Response Animation"
+    },
+    "neutralColor": {
+      "desc": "Custom grayscale with different color tendencies",
+      "title": "Neutral Color"
+    },
+    "noAnimation": {
+      "desc": "Disable all animation effects in the application",
+      "title": "No Animation Mode"
+    },
+    "preview": {
+      "title": "Color Palette"
+    },
+    "primaryColor": {
+      "desc": "Custom theme color",
+      "title": "Theme Color"
+    },
+    "title": "Application Appearance"
   },
   "settingChat": {
     "autoCreateTopicThreshold": {
@@ -173,8 +227,8 @@
       "desc": "Whether to automatically create a topic during the conversation, only effective in temporary topics",
       "title": "Auto Create Topic"
     },
-    "enableCompressThreshold": {
-      "title": "Enable History Message Length Compression Threshold"
+    "enableCompressHistory": {
+      "title": "Enable Automatic Summary of Chat History"
     },
     "enableHistoryCount": {
       "alias": "Unlimited",
@@ -182,6 +236,10 @@
       "setlimited": "Set limited history messages",
       "title": "Limit History Message Count",
       "unlimited": "Unlimited history message count"
+    },
+    "enableStreaming": {
+      "desc": "Enable streaming output to display responses in real-time. When disabled, only the complete response is shown.",
+      "title": "Enable Streaming Output"
     },
     "historyCount": {
       "desc": "Number of historical messages carried with each request",
@@ -192,44 +250,111 @@
       "placeholder": "Preprocessing template {{text}} will be replaced with real-time input information",
       "title": "User Input Preprocessing"
     },
+    "submit": "Update Chat Preferences",
     "title": "Chat Settings"
+  },
+  "settingChatAppearance": {
+    "fontSize": {
+      "desc": "Font size of chat content",
+      "marks": {
+        "normal": "Standard"
+      },
+      "title": "Font Size"
+    },
+    "highlighterTheme": {
+      "title": "Code Highlight Theme"
+    },
+    "mermaidTheme": {
+      "title": "Mermaid Theme"
+    },
+    "title": "Chat Appearance",
+    "transitionMode": {
+      "desc": "Transition animation for chat messages",
+      "options": {
+        "fadeIn": "Fade In",
+        "none": {
+          "desc": "This depends on the model's response output method; please test it yourself.",
+          "value": "None"
+        },
+        "smooth": "Smooth"
+      },
+      "title": "Transition Animation"
+    }
+  },
+  "settingCommon": {
+    "lang": {
+      "autoMode": "Follow System",
+      "title": "Language"
+    },
+    "themeMode": {
+      "auto": "Automatic",
+      "dark": "Dark",
+      "light": "Light",
+      "title": "Theme"
+    },
+    "title": "General Settings"
   },
   "settingModel": {
     "enableMaxTokens": {
       "title": "Enable Max Tokens Limit"
     },
+    "enableReasoningEffort": {
+      "title": "Enable Reasoning Effort Adjustment"
+    },
     "frequencyPenalty": {
-      "desc": "The higher the value, the more likely it is to reduce repeated words",
-      "title": "Frequency Penalty"
+      "desc": "The higher the value, the more diverse and rich the vocabulary; the lower the value, the simpler and more straightforward the language.",
+      "title": "Vocabulary Richness"
     },
     "maxTokens": {
       "desc": "The maximum number of tokens used for each interaction",
       "title": "Max Tokens Limit"
     },
     "model": {
-      "desc": "ChatGPT model",
-      "list": {
-        "gpt-3.5-turbo": "GPT 3.5",
-        "gpt-3.5-turbo-16k": "GPT 3.5 (16K)",
-        "gpt-4": "GPT 4",
-        "gpt-4-32k": "GPT 4 (32K)"
-      },
+      "desc": "{{provider}} model",
       "title": "Model"
     },
-    "presencePenalty": {
-      "desc": "The higher the value, the more likely it is to expand to new topics",
-      "title": "Topic Freshness"
+    "params": {
+      "title": "Advanced Parameters"
     },
+    "presencePenalty": {
+      "desc": "The higher the value, the more inclined to use different expressions and avoid concept repetition; the lower the value, the more inclined to use repeated concepts or narratives, resulting in more consistent expression.",
+      "title": "Expression Divergence"
+    },
+    "reasoningEffort": {
+      "desc": "Higher values enhance reasoning ability but may increase response time and token usage.",
+      "options": {
+        "high": "High",
+        "low": "Low",
+        "medium": "Medium"
+      },
+      "title": "Reasoning Effort"
+    },
+    "submit": "Update Model Settings",
     "temperature": {
-      "desc": "The higher the value, the more random the response",
-      "title": "Randomness",
-      "titleWithValue": "Randomness {{value}}"
+      "desc": "The higher the value, the more creative and imaginative the responses; the lower the value, the more rigorous the responses.",
+      "title": "Creativity Level",
+      "warning": "If the creativity level is set too high, the output may become garbled."
     },
     "title": "Model Settings",
     "topP": {
-      "desc": "Similar to randomness, but do not change together with randomness",
-      "title": "Top P Sampling"
+      "desc": "How many possibilities to consider; a higher value accepts more potential answers, while a lower value tends to choose the most likely answer. It is not recommended to change this alongside the creativity level.",
+      "title": "Openness to Ideas"
     }
+  },
+  "settingOpening": {
+    "openingMessage": {
+      "desc": "The opening message displayed when the conversation starts, used to introduce the assistant's features",
+      "placeholder": "Hello, I am your Custom Assistant. You can start chatting with me right away, or go to Assistant Settings to complete my information.",
+      "title": "Opening Message"
+    },
+    "openingQuestions": {
+      "desc": "Guiding questions displayed at the beginning of the conversation",
+      "empty": "No questions available",
+      "placeholder": "Please enter a question",
+      "repeat": "Question already exists",
+      "title": "Opening Questions"
+    },
+    "title": "Opening Settings"
   },
   "settingPlugin": {
     "title": "Plugin List"
@@ -281,6 +406,7 @@
       "desc": "Where 'browser' is the native speech recognition service of the browser",
       "title": "Speech Recognition Service"
     },
+    "submit": "Update Voice Service",
     "title": "Speech Service",
     "tts": "Text-to-Speech Settings",
     "ttsService": {
@@ -288,48 +414,50 @@
       "title": "Text-to-Speech Service"
     },
     "voice": {
-      "desc": "Select a voice for the current agent, different TTS services support different voices",
+      "desc": "Select a voice for the current assistant, different TTS services support different voices",
       "preview": "Voice Preview",
       "title": "Text-to-Speech Voice"
     }
   },
-  "settingTheme": {
-    "avatar": {
-      "title": "Avatar"
-    },
-    "fontSize": {
-      "desc": "Font size for chat content",
-      "marks": {
-        "normal": "Normal"
+  "storage": {
+    "actions": {
+      "export": {
+        "button": "Export",
+        "exportType": {
+          "agent": "Export Assistant Settings",
+          "agentWithMessage": "Export Assistant and Messages",
+          "all": "Export Global Settings and All Assistant Data",
+          "allAgent": "Export All Assistant Settings",
+          "allAgentWithMessage": "Export All Assistants and Messages",
+          "globalSetting": "Export Global Settings"
+        },
+        "title": "Export Data"
       },
-      "title": "Font Size"
+      "import": {
+        "button": "Import",
+        "title": "Import Data"
+      },
+      "title": "Advanced Operations"
     },
-    "lang": {
-      "autoMode": "Follow System",
-      "title": "Language"
+    "desc": "Current storage usage in the browser",
+    "embeddings": {
+      "used": "Vector Storage"
     },
-    "neutralColor": {
-      "desc": "Custom neutral color for different color tendencies",
-      "title": "Neutral Color"
-    },
-    "primaryColor": {
-      "desc": "Custom primary theme color",
-      "title": "Primary Color"
-    },
-    "themeMode": {
-      "auto": "Auto",
-      "dark": "Dark",
-      "light": "Light",
-      "title": "Theme"
-    },
-    "title": "Theme Settings"
+    "title": "Data Storage",
+    "used": "Storage Usage"
   },
   "submitAgentModal": {
-    "button": "Submit Agent",
-    "identifier": "Agent Identifier",
-    "metaMiss": "Please complete the agent information before submitting. It should include name, description, and tags",
-    "placeholder": "Enter a unique identifier for the agent, e.g. web-development",
-    "tooltips": "Share to the agent marketplace"
+    "button": "Submit Assistant",
+    "identifier": "Assistant Identifier",
+    "metaMiss": "Please complete the assistant information before submitting. It should include name, description, and tags",
+    "placeholder": "Enter a unique identifier for the assistant, e.g. web-development",
+    "tooltips": "Share to the assistant marketplace"
+  },
+  "submitFooter": {
+    "reset": "Reset",
+    "submit": "Save",
+    "unSaved": "Unsaved Changes",
+    "unSavedWarning": "There are currently unsaved changes"
   },
   "sync": {
     "device": {
@@ -343,7 +471,7 @@
       "unknownOS": "Unknown OS"
     },
     "warning": {
-      "message": "This feature is currently experimental and may have unexpected or unstable behavior. If you encounter any issues, please submit feedback promptly."
+      "tip": "After a long period of community testing, WebRTC synchronization may not reliably meet general data synchronization needs. Please <1>deploy a signaling server</1> before use."
     },
     "webrtc": {
       "channelName": {
@@ -359,33 +487,74 @@
       },
       "desc": "Real-time, peer-to-peer data communication requires all devices to be online for synchronization.",
       "enabled": {
-        "invalid": "Please enter a sync channel name before enabling",
+        "invalid": "Please fill in the signaling server and synchronization channel name before enabling.",
         "title": "Enable Sync"
+      },
+      "signaling": {
+        "desc": "WebRTC will use this address for synchronization",
+        "placeholder": "Enter signaling server address",
+        "title": "Signaling Server"
       },
       "title": "WebRTC Sync"
     }
   },
   "systemAgent": {
-    "title": "System Agents",
+    "agentMeta": {
+      "label": "Assistant Metadata Generation Model",
+      "modelDesc": "Model designated for generating assistant name, description, avatar, and tags",
+      "title": "Automatically Generate Assistant Information"
+    },
+    "customPrompt": {
+      "addPrompt": "Add Custom Prompt",
+      "desc": "Once filled out, the system assistant will use the custom prompt when generating content",
+      "placeholder": "Please enter custom prompt",
+      "title": "Custom Prompt"
+    },
+    "generationTopic": {
+      "label": "AI Art Topic Naming Model",
+      "modelDesc": "Model designated for automatic naming of AI art topics",
+      "title": "AI Art Automatic Topic Naming"
+    },
+    "helpInfo": "When creating a new assistant, the default assistant settings will be used as preset values.",
+    "historyCompress": {
+      "label": "Conversation History Model",
+      "modelDesc": "Specify the model used to compress conversation history",
+      "title": "Automatically Summarize Conversation History"
+    },
+    "queryRewrite": {
+      "label": "Question Rewriting Model",
+      "modelDesc": "Specify the model used to optimize user inquiries",
+      "title": "Knowledge Base Question Rewrite"
+    },
+    "thread": {
+      "label": "Subtopic Naming Model",
+      "modelDesc": "The model designated for automatic renaming of subtopics",
+      "title": "Automatic Subtopic Naming"
+    },
+    "title": "System Assistants",
     "topic": {
       "label": "Topic Naming Model",
       "modelDesc": "Model designated for automatic topic renaming",
       "title": "Automatic Topic Naming"
     },
     "translation": {
-      "label": "Translation Agent",
+      "label": "Translation Assistant",
       "modelDesc": "Specific model for translate message",
       "title": "Translation Settings"
     }
   },
   "tab": {
     "about": "About",
-    "agent": "Default Agent",
+    "agent": "Default Assistant",
     "common": "Common Settings",
     "experiment": "Experiment",
+    "hotkey": "Hotkeys",
     "llm": "Language Model",
+    "provider": "AI Service Provider",
+    "proxy": "Network Proxy",
+    "storage": "Data Storage",
     "sync": "Cloud Sync",
-    "system-agent": "System Agent",
+    "system-agent": "System Assistant",
     "tts": "Text-to-Speech"
   },
   "tools": {

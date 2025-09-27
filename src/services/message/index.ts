@@ -1,12 +1,13 @@
-// import { getClientConfig } from '@/config/client';
-// import { ServerService } from './server';
-// import { ClientService } from './client';
-//
-// const { ENABLED_SERVER_SERVICE } = getClientConfig();
-//
-// export const messageService = ENABLED_SERVER_SERVICE ? new ServerService() : new ClientService();
+import { isDesktop } from '@/const/version';
+
+import { ClientService as DeprecatedService } from './_deprecated';
 import { ClientService } from './client';
+import { ServerService } from './server';
 
-export type { CreateMessageParams } from './type';
+const clientService =
+  process.env.NEXT_PUBLIC_CLIENT_DB === 'pglite' ? new ClientService() : new DeprecatedService();
 
-export const messageService = new ClientService();
+export const messageService =
+  process.env.NEXT_PUBLIC_SERVICE_MODE === 'server' || isDesktop
+    ? new ServerService()
+    : clientService;

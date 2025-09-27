@@ -11,28 +11,30 @@ const useStyles = createStyles(({ css, token, isDarkMode }) => ({
   cancelIcon: css`
     position: absolute;
     z-index: 100;
-    top: 8px;
-    right: 8px;
+    inset-block-start: 8px;
+    inset-inline-end: 8px;
   `,
   container: css`
     position: absolute;
     z-index: 1100;
-    bottom: 16px;
+    inset-block-end: 16px;
     inset-inline-end: 20px;
 
     overflow: hidden;
 
-    background: ${token.colorBgContainer};
     border: 1px solid ${token.colorSplit};
     border-radius: 8px;
+
+    background: ${token.colorBgContainer};
     box-shadow: ${token.boxShadowSecondary};
   `,
   mobileContainer: css`
-    bottom: 8px;
+    inset-block-end: 8px;
     inset-inline-start: 8px;
   `,
   wrapper: css`
-    background: linear-gradient(
+    background:
+      linear-gradient(
         180deg,
         ${rgba(token.colorBgContainer, 0)},
         ${token.colorBgContainer} ${isDarkMode ? '80' : '140'}px

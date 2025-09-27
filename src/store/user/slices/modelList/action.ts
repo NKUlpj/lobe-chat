@@ -1,16 +1,16 @@
+import type {
+  ChatModelCard,
+  GlobalLLMProviderKey,
+  ModelProviderCard,
+  UserKeyVaults,
+  UserModelProviderConfig,
+} from '@lobechat/types';
 import { produce } from 'immer';
+import { ModelProvider } from 'model-bank';
 import useSWR, { SWRResponse } from 'swr';
 import type { StateCreator } from 'zustand/vanilla';
 
-import { DEFAULT_MODEL_PROVIDER_LIST } from '@/config/modelProviders';
-import { ModelProvider } from '@/libs/agent-runtime';
-import { UserStore } from '@/store/user';
-import { ChatModelCard } from '@/types/llm';
-import {
-  GlobalLLMProviderKey,
-  UserKeyVaults,
-  UserModelProviderConfig,
-} from '@/types/user/settings';
+import type { UserStore } from '@/store/user';
 
 import { settingsSelectors } from '../settings/selectors';
 import { CustomModelCardDispatch, customModelCardsReducer } from './reducers/customModelCard';
@@ -20,6 +20,7 @@ import { modelProviderSelectors } from './selectors/modelProvider';
  * 设置操作
  */
 export interface ModelListAction {
+  clearObtainedModels: (provider: GlobalLLMProviderKey) => Promise<void>;
   dispatchCustomModelCards: (
     provider: GlobalLLMProviderKey,
     payload: CustomModelCardDispatch,
@@ -27,7 +28,7 @@ export interface ModelListAction {
   /**
    * make sure the default model provider list is sync to latest state
    */
-  refreshDefaultModelProviderList: (params?: { trigger?: string }) => void;
+  refreshDefaultModelProviderList: (params?: { trigger?: string }) => Promise<void>;
   refreshModelProviderList: (params?: { trigger?: string }) => void;
   removeEnabledModels: (provider: GlobalLLMProviderKey, model: string) => Promise<void>;
   setModelProviderConfig: <T extends GlobalLLMProviderKey>(
@@ -49,6 +50,8 @@ export interface ModelListAction {
     config: Partial<UserKeyVaults[T]>,
   ) => Promise<void>;
 
+  updateKeyVaultSettings: (key: string, config: any) => Promise<void>;
+
   useFetchProviderModelList: (
     provider: GlobalLLMProviderKey,
     enabledAutoFetch: boolean,
@@ -61,6 +64,13 @@ export const createModelListSlice: StateCreator<
   [],
   ModelListAction
 > = (set, get) => ({
+  clearObtainedModels: async (provider: GlobalLLMProviderKey) => {
+    await get().setModelProviderConfig(provider, {
+      remoteModelCards: [],
+    });
+
+    await get().refreshDefaultModelProviderList();
+  },
   dispatchCustomModelCards: async (provider, payload) => {
     const prevState = settingsSelectors.providerConfig(provider)(get());
 
@@ -70,7 +80,7 @@ export const createModelListSlice: StateCreator<
 
     await get().setModelProviderConfig(provider, { customModelCards: nextState });
   },
-  refreshDefaultModelProviderList: (params) => {
+  refreshDefaultModelProviderList: async (params) => {
     /**
      * Because we have several model cards sources, we need to merge the model cards
      * the priority is below:
@@ -79,30 +89,29 @@ export const createModelListSlice: StateCreator<
      * 3 - default model cards
      */
 
-    // eslint-disable-next-line unicorn/consistent-function-scoping
-    const mergeModels = (provider: GlobalLLMProviderKey, defaultChatModels: ChatModelCard[]) => {
+    const mergeModels = (providerKey: GlobalLLMProviderKey, providerCard: ModelProviderCard) => {
       // if the chat model is config in the server side, use the server side model cards
-      const serverChatModels = modelProviderSelectors.serverProviderModelCards(provider)(get());
-      const remoteChatModels = modelProviderSelectors.remoteProviderModelCards(provider)(get());
+      const serverChatModels = modelProviderSelectors.serverProviderModelCards(providerKey)(get());
+      const remoteChatModels = providerCard.modelList?.showModelFetcher
+        ? modelProviderSelectors.remoteProviderModelCards(providerKey)(get())
+        : undefined;
 
-      return serverChatModels ?? remoteChatModels ?? defaultChatModels;
+      if (serverChatModels && serverChatModels.length > 0) {
+        return serverChatModels;
+      }
+      if (remoteChatModels && remoteChatModels.length > 0) {
+        return remoteChatModels;
+      }
+
+      return providerCard.chatModels;
     };
 
+    const { DEFAULT_MODEL_PROVIDER_LIST } = await import('@/config/modelProviders');
     const defaultModelProviderList = produce(DEFAULT_MODEL_PROVIDER_LIST, (draft) => {
-      const openai = draft.find((d) => d.id === ModelProvider.OpenAI);
-      if (openai) openai.chatModels = mergeModels('openai', openai.chatModels);
-
-      const azure = draft.find((d) => d.id === ModelProvider.Azure);
-      if (azure) azure.chatModels = mergeModels('azure', azure.chatModels);
-
-      const ollama = draft.find((d) => d.id === ModelProvider.Ollama);
-      if (ollama) ollama.chatModels = mergeModels('ollama', ollama.chatModels);
-
-      const openrouter = draft.find((d) => d.id === ModelProvider.OpenRouter);
-      if (openrouter) openrouter.chatModels = mergeModels('openrouter', openrouter.chatModels);
-
-      const togetherai = draft.find((d) => d.id === ModelProvider.TogetherAI);
-      if (togetherai) togetherai.chatModels = mergeModels('togetherai', togetherai.chatModels);
+      Object.values(ModelProvider).forEach((id) => {
+        const provider = draft.find((d) => d.id === id);
+        if (provider) provider.chatModels = mergeModels(id as any, provider);
+      });
     });
 
     set({ defaultModelProviderList }, false, `refreshDefaultModelList - ${params?.trigger}`);
@@ -110,22 +119,23 @@ export const createModelListSlice: StateCreator<
     get().refreshModelProviderList({ trigger: 'refreshDefaultModelList' });
   },
   refreshModelProviderList: (params) => {
-    const modelProviderList = get().defaultModelProviderList.map((list) => ({
-      ...list,
-      chatModels: modelProviderSelectors
-        .getModelCardsById(list.id)(get())
-        ?.map((model) => {
-          const models = modelProviderSelectors.getEnableModelsById(list.id)(get());
+    const modelProviderList = get().defaultModelProviderList.map((list) => {
+      const enabledModels = modelProviderSelectors.getEnableModelsById(list.id)(get());
+      return {
+        ...list,
+        chatModels: modelProviderSelectors
+          .getModelCardsById(list.id)(get())
+          ?.map((model) => {
+            if (!enabledModels) return model;
 
-          if (!models) return model;
-
-          return {
-            ...model,
-            enabled: models?.some((m) => m === model.id),
-          };
-        }),
-      enabled: modelProviderSelectors.isProviderEnabled(list.id as any)(get()),
-    }));
+            return {
+              ...model,
+              enabled: enabledModels?.some((m) => m === model.id),
+            };
+          }),
+        enabled: modelProviderSelectors.isProviderEnabled(list.id as any)(get()),
+      };
+    });
 
     set({ modelProviderList }, false, `refreshModelList - ${params?.trigger}`);
   },
@@ -183,13 +193,17 @@ export const createModelListSlice: StateCreator<
     await get().setSettings({ keyVaults: { [provider]: config } });
   },
 
+  updateKeyVaultSettings: async (provider, config) => {
+    await get().setSettings({ keyVaults: { [provider]: config } });
+  },
+
   useFetchProviderModelList: (provider, enabledAutoFetch) =>
     useSWR<ChatModelCard[] | undefined>(
       [provider, enabledAutoFetch],
       async ([p]) => {
         const { modelsService } = await import('@/services/models');
 
-        return modelsService.getChatModels(p);
+        return modelsService.getModels(p);
       },
       {
         onSuccess: async (data) => {

@@ -1,11 +1,13 @@
-// import { getClientConfig } from '@/config/client';
+import { isDesktop } from '@/const/version';
+
+import { ClientService as DeprecatedService } from './_deprecated';
 import { ClientService } from './client';
+import { ServerService } from './server';
 
-// import { ServerService } from './server';
-//
-// export type { InstallPluginParams } from './client';
-//
-// const { ENABLED_SERVER_SERVICE } = getClientConfig();
+const clientService =
+  process.env.NEXT_PUBLIC_CLIENT_DB === 'pglite' ? new ClientService() : new DeprecatedService();
 
-// export const pluginService = ENABLED_SERVER_SERVICE ? new ServerService() : new ClientService();
-export const pluginService = new ClientService();
+export const pluginService =
+  process.env.NEXT_PUBLIC_SERVICE_MODE === 'server' || isDesktop
+    ? new ServerService()
+    : clientService;

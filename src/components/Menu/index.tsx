@@ -10,19 +10,19 @@ const useStyles = createStyles(({ css, token, prefixCls }) => ({
   `,
   menu: css`
     flex: 1;
-    background: transparent;
     border: none !important;
+    background: transparent;
 
     .${prefixCls}-menu-item-divider {
       margin-block: 0.125rem;
       border-color: ${token.colorFillTertiary};
 
       &:first-child {
-        margin-top: 0;
+        margin-block-start: 0;
       }
 
       &:last-child {
-        margin-bottom: 0;
+        margin-block-end: 0;
       }
     }
 
@@ -33,7 +33,8 @@ const useStyles = createStyles(({ css, token, prefixCls }) => ({
 
       height: unset;
       min-height: 2rem;
-      padding: 0.375rem 0.75rem;
+      padding-block: 0.375rem;
+      padding-inline: 0.75rem;
 
       line-height: 2;
 
@@ -59,11 +60,10 @@ const useStyles = createStyles(({ css, token, prefixCls }) => ({
 }));
 
 export interface MenuProps extends AntdMenuProps {
-  variant?: 'default' | 'compact';
+  compact?: boolean;
 }
 
-const Menu = memo<MenuProps>(({ className, selectable = false, variant, ...rest }) => {
-  const isCompact = variant === 'compact';
+const Menu = memo<MenuProps>(({ className, selectable = false, compact, ...rest }) => {
   const { cx, styles, theme } = useStyles();
   return (
     <ConfigProvider
@@ -76,8 +76,8 @@ const Menu = memo<MenuProps>(({ className, selectable = false, variant, ...rest 
             itemBorderRadius: theme.borderRadius,
             itemColor: selectable ? theme.colorTextSecondary : theme.colorText,
             itemHoverBg: theme.colorFillTertiary,
-            itemMarginBlock: isCompact ? 0 : 4,
-            itemMarginInline: isCompact ? 0 : 4,
+            itemMarginBlock: compact ? 0 : 4,
+            itemMarginInline: compact ? 0 : 4,
             itemSelectedBg: theme.colorFillSecondary,
             paddingXS: -8,
           },
@@ -85,7 +85,7 @@ const Menu = memo<MenuProps>(({ className, selectable = false, variant, ...rest 
       }}
     >
       <AntdMenu
-        className={cx(styles.menu, isCompact && styles.compact, className)}
+        className={cx(styles.menu, compact && styles.compact, className)}
         mode="vertical"
         selectable={selectable}
         {...rest}

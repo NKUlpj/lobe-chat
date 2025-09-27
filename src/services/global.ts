@@ -1,10 +1,10 @@
-import { DeepPartial } from 'utility-types';
+import type { PartialDeep } from 'type-fest';
 
-import { edgeClient } from '@/libs/trpc/client';
+import { lambdaClient } from '@/libs/trpc/client';
 import { LobeAgentConfig } from '@/types/agent';
-import { GlobalServerConfig } from '@/types/serverConfig';
+import { GlobalRuntimeConfig } from '@/types/serverConfig';
 
-const VERSION_URL = 'https://registry.npmmirror.com/@lobehub/chat';
+const VERSION_URL = 'https://registry.npmmirror.com/@lobehub/chat/latest';
 
 class GlobalService {
   /**
@@ -14,15 +14,15 @@ class GlobalService {
     const res = await fetch(VERSION_URL);
     const data = await res.json();
 
-    return data['dist-tags']?.latest;
+    return data['version'];
   };
 
-  getGlobalConfig = async (): Promise<GlobalServerConfig> => {
-    return edgeClient.config.getGlobalConfig.query();
+  getGlobalConfig = async (): Promise<GlobalRuntimeConfig> => {
+    return lambdaClient.config.getGlobalConfig.query();
   };
 
-  getDefaultAgentConfig = async (): Promise<DeepPartial<LobeAgentConfig>> => {
-    return edgeClient.config.getDefaultAgentConfig.query();
+  getDefaultAgentConfig = async (): Promise<PartialDeep<LobeAgentConfig>> => {
+    return lambdaClient.config.getDefaultAgentConfig.query();
   };
 }
 

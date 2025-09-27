@@ -1,16 +1,18 @@
+import { getSingletonAnalyticsOptional } from '@lobehub/analytics';
 import isEqual from 'fast-deep-equal';
 import { t } from 'i18next';
 import useSWR, { SWRResponse, mutate } from 'swr';
-import { DeepPartial } from 'utility-types';
+import type { PartialDeep } from 'type-fest';
 import { StateCreator } from 'zustand/vanilla';
 
 import { message } from '@/components/AntdStaticMethods';
+import { MESSAGE_CANCEL_FLAT } from '@/const/message';
 import { DEFAULT_AGENT_LOBE_SESSION, INBOX_SESSION_ID } from '@/const/session';
 import { useClientDataSWR } from '@/libs/swr';
 import { sessionService } from '@/services/session';
 import { SessionStore } from '@/store/session';
-import { useUserStore } from '@/store/user';
-import { settingsSelectors } from '@/store/user/selectors';
+import { getUserStoreState, useUserStore } from '@/store/user';
+import { settingsSelectors, userProfileSelectors } from '@/store/user/selectors';
 import { MetaData } from '@/types/meta';
 import {
   ChatSessionList,
@@ -18,11 +20,12 @@ import {
   LobeSessionGroups,
   LobeSessionType,
   LobeSessions,
-  SessionGroupId,
+  UpdateSessionParams,
 } from '@/types/session';
 import { merge } from '@/utils/merge';
 import { setNamespace } from '@/utils/storeDebug';
 
+import { sessionGroupSelectors } from '../sessionGroup/selectors';
 import { SessionDispatch, sessionsReducer } from './reducers';
 import { sessionSelectors } from './selectors';
 import { sessionMetaSelectors } from './selectors/meta';
@@ -48,10 +51,11 @@ export interface SessionAction {
    * @returns sessionId
    */
   createSession: (
-    session?: DeepPartial<LobeAgentSession>,
+    session?: PartialDeep<LobeAgentSession>,
     isSwitchSession?: boolean,
   ) => Promise<string>;
   duplicateSession: (id: string) => Promise<void>;
+  triggerSessionUpdate: (id: string) => Promise<void>;
   updateSessionGroupId: (sessionId: string, groupId: string) => Promise<void>;
   updateSessionMeta: (meta: Partial<MetaData>) => void;
 
@@ -71,14 +75,14 @@ export interface SessionAction {
 
   updateSearchKeywords: (keywords: string) => void;
 
-  useFetchSessions: (isLogin: boolean | undefined) => SWRResponse<ChatSessionList>;
+  useFetchSessions: (
+    enabled: boolean,
+    isLogin: boolean | undefined,
+  ) => SWRResponse<ChatSessionList>;
   useSearchSessions: (keyword?: string) => SWRResponse<any>;
 
   internal_dispatchSessions: (payload: SessionDispatch) => void;
-  internal_updateSession: (
-    id: string,
-    data: Partial<{ group?: SessionGroupId; meta?: any; pinned?: boolean }>,
-  ) => Promise<void>;
+  internal_updateSession: (id: string, data: Partial<UpdateSessionParams>) => Promise<void>;
   internal_processSessions: (
     sessions: LobeSessions,
     customGroups: LobeSessionGroups,
@@ -112,12 +116,35 @@ export const createSessionSlice: StateCreator<
     const id = await sessionService.createSession(LobeSessionType.Agent, newSession);
     await refreshSessions();
 
+    // Track new agent creation analytics
+    const analytics = getSingletonAnalyticsOptional();
+    if (analytics) {
+      const userStore = getUserStoreState();
+      const userId = userProfileSelectors.userId(userStore);
+
+      // Get group information
+      const groupId = newSession.group || 'default';
+      const group = sessionGroupSelectors.getGroupById(groupId)(get());
+      const groupName = group?.name || (groupId === 'default' ? 'Default' : 'Unknown');
+
+      analytics.track({
+        name: 'new_agent_created',
+        properties: {
+          assistant_name: newSession.meta?.title || 'Untitled Agent',
+          assistant_tags: newSession.meta?.tags || [],
+          group_id: groupId,
+          group_name: groupName,
+          session_id: id,
+          user_id: userId || 'anonymous',
+        },
+      });
+    }
+
     // Whether to goto  to the new session after creation, the default is to switch to
     if (isSwitchSession) switchSession(id);
 
     return id;
   },
-
   duplicateSession: async (id) => {
     const { switchSession, refreshSessions } = get();
     const session = sessionSelectors.getSessionById(id)(get());
@@ -153,7 +180,6 @@ export const createSessionSlice: StateCreator<
   pinSession: async (id, pinned) => {
     await get().internal_updateSession(id, { pinned });
   },
-
   removeSession: async (sessionId) => {
     await sessionService.removeSession(sessionId);
     await get().refreshSessions();
@@ -168,6 +194,10 @@ export const createSessionSlice: StateCreator<
     if (get().activeId === sessionId) return;
 
     set({ activeId: sessionId }, false, n(`activeSession/${sessionId}`));
+  },
+
+  triggerSessionUpdate: async (id) => {
+    await get().internal_updateSession(id, { updatedAt: new Date() });
   },
 
   updateSearchKeywords: (keywords) => {
@@ -188,7 +218,7 @@ export const createSessionSlice: StateCreator<
     const { activeId, refreshSessions } = get();
 
     const abortController = get().signalSessionMeta as AbortController;
-    if (abortController) abortController.abort('canceled');
+    if (abortController) abortController.abort(MESSAGE_CANCEL_FLAT);
     const controller = new AbortController();
     set({ signalSessionMeta: controller }, false, 'updateSessionMetaSignal');
 
@@ -196,9 +226,9 @@ export const createSessionSlice: StateCreator<
     await refreshSessions();
   },
 
-  useFetchSessions: (isLogin) =>
+  useFetchSessions: (enabled, isLogin) =>
     useClientDataSWR<ChatSessionList>(
-      [FETCH_SESSIONS_KEY, isLogin],
+      enabled ? [FETCH_SESSIONS_KEY, isLogin] : null,
       () => sessionService.getGroupedSessions(),
       {
         fallbackData: {

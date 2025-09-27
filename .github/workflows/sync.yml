@@ -7,7 +7,7 @@ permissions:
 
 on:
   schedule:
-    - cron: '0 * * * *' # every hour
+    - cron: '0 */6 * * *' # every 6 hours
   workflow_dispatch:
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
     if: ${{ github.event.repository.fork }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Clean issue notice
         uses: actions-cool/issues-helper@v3

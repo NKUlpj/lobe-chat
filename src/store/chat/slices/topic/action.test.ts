@@ -6,7 +6,7 @@ import { LOADING_FLAT } from '@/const/message';
 import { chatService } from '@/services/chat';
 import { messageService } from '@/services/message';
 import { topicService } from '@/services/topic';
-import { messageMapKey } from '@/store/chat/slices/message/utils';
+import { messageMapKey } from '@/store/chat/utils/messageMapKey';
 import { ChatMessage } from '@/types/message';
 import { ChatTopic } from '@/types/topic';
 
@@ -33,6 +33,7 @@ vi.mock('@/services/topic', () => ({
 vi.mock('@/services/message', () => ({
   messageService: {
     removeMessages: vi.fn(),
+    removeMessagesByAssistant: vi.fn(),
     getMessages: vi.fn(),
   },
 }));
@@ -231,7 +232,7 @@ describe('topic action', () => {
       (topicService.getTopics as Mock).mockResolvedValue(topics);
 
       // Use the hook with the session id
-      const { result } = renderHook(() => useChatStore().useFetchTopics(sessionId));
+      const { result } = renderHook(() => useChatStore().useFetchTopics(true, sessionId));
 
       // Wait for the hook to resolve and update the state
       await waitFor(() => {
@@ -263,7 +264,8 @@ describe('topic action', () => {
       const topicId = 'topic-id';
       const newTitle = 'Updated Topic Title';
       // Mock the topicService.updateTitle to resolve immediately
-      (topicService.updateTopic as Mock).mockResolvedValue(undefined);
+
+      const spyOn = vi.spyOn(topicService, 'updateTopic');
 
       const { result } = renderHook(() => useChatStore());
 
@@ -275,7 +277,7 @@ describe('topic action', () => {
       });
 
       // Verify that the topicService.updateTitle was called with correct parameters
-      expect(topicService.updateTopic).toHaveBeenCalledWith(topicId, {
+      expect(spyOn).toHaveBeenCalledWith(topicId, {
         title: 'Updated Topic Title',
       });
 
@@ -351,7 +353,7 @@ describe('topic action', () => {
         await result.current.removeTopic(topicId);
       });
 
-      expect(messageService.removeMessages).toHaveBeenCalledWith(activeId, topicId);
+      expect(messageService.removeMessagesByAssistant).toHaveBeenCalledWith(activeId, topicId);
       expect(topicService.removeTopic).toHaveBeenCalledWith(topicId);
       expect(refreshTopicSpy).toHaveBeenCalled();
       expect(switchTopicSpy).toHaveBeenCalled();
@@ -372,7 +374,7 @@ describe('topic action', () => {
         await result.current.removeTopic(topicId);
       });
 
-      expect(messageService.removeMessages).toHaveBeenCalledWith(activeId, topicId);
+      expect(messageService.removeMessagesByAssistant).toHaveBeenCalledWith(activeId, topicId);
       expect(topicService.removeTopic).toHaveBeenCalledWith(topicId);
       expect(refreshTopicSpy).toHaveBeenCalled();
       expect(switchTopicSpy).not.toHaveBeenCalled();
@@ -486,7 +488,7 @@ describe('topic action', () => {
       expect(createTopicSpy).toHaveBeenCalledWith({
         sessionId: activeId,
         messages: messages.map((m) => m.id),
-        title: 'topic.defaultTitle',
+        title: 'defaultTitle',
       });
       expect(refreshTopicSpy).toHaveBeenCalled();
     });

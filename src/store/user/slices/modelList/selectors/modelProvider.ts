@@ -1,11 +1,15 @@
+import type {
+  ChatModelCard,
+  EnabledProviderWithModels,
+  GlobalLLMProviderKey,
+  ModelProviderCard,
+} from '@lobechat/types';
+import { ServerModelProviderConfig } from '@lobechat/types';
 import { uniqBy } from 'lodash-es';
 
 import { filterEnabledModels } from '@/config/modelProviders';
-import { ChatModelCard, ModelProviderCard } from '@/types/llm';
-import { ServerModelProviderConfig } from '@/types/serverConfig';
-import { GlobalLLMProviderKey } from '@/types/user/settings';
+import type { UserStore } from '@/store/user';
 
-import { UserStore } from '../../../store';
 import { currentSettings, getProviderConfigById } from '../../settings/selectors/settings';
 
 /**
@@ -49,7 +53,7 @@ export const getDefaultModeProviderById = (provider: string) => (s: UserStore) =
 /**
  * get the default enabled models for a provider
  * it's a default enabled model list by Lobe Chat
- * e.g. openai is ['gpt-3.5-turbo','gpt-4-turbo']
+ * e.g. openai is ['gpt-4o-mini','gpt-4o','gpt-4-turbo']
  */
 const getDefaultEnabledModelsById = (provider: string) => (s: UserStore) => {
   const modelProvider = getDefaultModeProviderById(provider)(s);
@@ -88,18 +92,32 @@ const getEnableModelsById = (provider: string) => (s: UserStore) => {
 
 const modelProviderList = (s: UserStore): ModelProviderCard[] => s.modelProviderList;
 
-const modelProviderListForModelSelect = (s: UserStore): ModelProviderCard[] =>
+const modelProviderListForModelSelect = (s: UserStore): EnabledProviderWithModels[] =>
   modelProviderList(s)
     .filter((s) => s.enabled)
     .map((provider) => ({
       ...provider,
-      chatModels: provider.chatModels.filter((model) => model.enabled),
+      children: provider.chatModels
+        .filter((model) => model.enabled)
+        .map((m) => ({
+          abilities: {
+            functionCall: m.functionCall,
+            vision: m.vision,
+          },
+          contextWindowTokens: m.contextWindowTokens,
+          displayName: m.displayName,
+          id: m.id,
+        })),
+      source: 'builtin',
     }));
 
-const getModelCardById = (id: string) => (s: UserStore) => {
+const getModelCardById = (id: string, provider?: GlobalLLMProviderKey) => (s: UserStore) => {
   const list = modelProviderList(s);
 
-  return list.flatMap((i) => i.chatModels).find((m) => m.id === id);
+  return list
+    .filter((i) => !provider || i.id === provider)
+    .flatMap((i) => i.chatModels)
+    .find((m) => m.id === id);
 };
 
 const isModelEnabledFunctionCall = (id: string) => (s: UserStore) =>
@@ -110,15 +128,19 @@ const isModelEnabledFunctionCall = (id: string) => (s: UserStore) =>
 const isModelEnabledVision = (id: string) => (s: UserStore) =>
   getModelCardById(id)(s)?.vision || id.includes('vision');
 
+const isModelEnabledReasoning = (id: string) => (s: UserStore) =>
+  getModelCardById(id)(s)?.reasoning || false;
+
 const isModelEnabledFiles = (id: string) => (s: UserStore) => getModelCardById(id)(s)?.files;
 
 const isModelEnabledUpload = (id: string) => (s: UserStore) =>
   isModelEnabledVision(id)(s) || isModelEnabledFiles(id)(s);
 
 const isModelHasMaxToken = (id: string) => (s: UserStore) =>
-  typeof getModelCardById(id)(s)?.tokens !== 'undefined';
+  typeof getModelCardById(id)(s)?.contextWindowTokens !== 'undefined';
 
-const modelMaxToken = (id: string) => (s: UserStore) => getModelCardById(id)(s)?.tokens || 0;
+const modelMaxToken = (id: string) => (s: UserStore) =>
+  getModelCardById(id)(s)?.contextWindowTokens || 0;
 
 export const modelProviderSelectors = {
   defaultModelProviderList,
@@ -131,6 +153,7 @@ export const modelProviderSelectors = {
   getModelCardsById,
   isModelEnabledFiles,
   isModelEnabledFunctionCall,
+  isModelEnabledReasoning,
   isModelEnabledUpload,
   isModelEnabledVision,
   isModelHasMaxToken,

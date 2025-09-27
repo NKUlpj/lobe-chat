@@ -1,20 +1,26 @@
-import { Select, SelectProps } from 'antd';
+import { Select, type SelectProps } from '@lobehub/ui';
 import { createStyles } from 'antd-style';
-import isEqual from 'fast-deep-equal';
 import { memo, useMemo } from 'react';
 
-import { ModelItemRender, ProviderItemRender } from '@/components/ModelSelect';
-import { useUserStore } from '@/store/user';
-import { modelProviderSelectors } from '@/store/user/selectors';
-import { ModelProviderCard } from '@/types/llm';
+import { ModelItemRender, ProviderItemRender, TAG_CLASSNAME } from '@/components/ModelSelect';
+import { useEnabledChatModels } from '@/hooks/useEnabledChatModels';
+import { EnabledProviderWithModels } from '@/types/aiProvider';
 
 const useStyles = createStyles(({ css, prefixCls }) => ({
-  select: css`
-    .${prefixCls}-select-dropdown .${prefixCls}-select-item-option-grouped {
+  popup: css`
+    &.${prefixCls}-select-dropdown .${prefixCls}-select-item-option-grouped {
       padding-inline-start: 12px;
     }
   `,
+  select: css`
+    .${prefixCls}-select-selection-item {
+      .${TAG_CLASSNAME} {
+        display: none;
+      }
+    }
+  `,
 }));
+
 interface ModelOption {
   label: any;
   provider: string;
@@ -22,21 +28,23 @@ interface ModelOption {
 }
 
 interface ModelSelectProps {
+  defaultValue?: { model: string; provider?: string };
   onChange?: (props: { model: string; provider: string }) => void;
-  value?: string;
+  showAbility?: boolean;
+  value?: { model: string; provider?: string };
 }
 
-const ModelSelect = memo<ModelSelectProps>(({ value, onChange }) => {
-  const enabledList = useUserStore(modelProviderSelectors.modelProviderListForModelSelect, isEqual);
+const ModelSelect = memo<ModelSelectProps>(({ value, onChange, showAbility = true }) => {
+  const enabledList = useEnabledChatModels();
 
   const { styles } = useStyles();
 
   const options = useMemo<SelectProps['options']>(() => {
-    const getChatModels = (provider: ModelProviderCard) =>
-      provider.chatModels.map((model) => ({
-        label: <ModelItemRender {...model} />,
+    const getChatModels = (provider: EnabledProviderWithModels) =>
+      provider.children.map((model) => ({
+        label: <ModelItemRender {...model} {...model.abilities} showInfoTag={showAbility} />,
         provider: provider.id,
-        value: model.id,
+        value: `${provider.id}/${model.id}`,
       }));
 
     if (enabledList.length === 1) {
@@ -46,7 +54,14 @@ const ModelSelect = memo<ModelSelectProps>(({ value, onChange }) => {
     }
 
     return enabledList.map((provider) => ({
-      label: <ProviderItemRender name={provider.name} provider={provider.id} />,
+      label: (
+        <ProviderItemRender
+          logo={provider.logo}
+          name={provider.name}
+          provider={provider.id}
+          source={provider.source}
+        />
+      ),
       options: getChatModels(provider),
     }));
   }, [enabledList]);
@@ -54,12 +69,17 @@ const ModelSelect = memo<ModelSelectProps>(({ value, onChange }) => {
   return (
     <Select
       className={styles.select}
-      onChange={(model, option) => {
+      classNames={{
+        popup: { root: styles.popup },
+      }}
+      defaultValue={`${value?.provider}/${value?.model}`}
+      onChange={(value, option) => {
+        const model = value.split('/').slice(1).join('/');
         onChange?.({ model, provider: (option as unknown as ModelOption).provider });
       }}
       options={options}
       popupMatchSelectWidth={false}
-      value={value}
+      value={`${value?.provider}/${value?.model}`}
     />
   );
 });

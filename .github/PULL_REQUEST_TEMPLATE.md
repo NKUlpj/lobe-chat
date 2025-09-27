@@ -6,9 +6,11 @@
 - [ ] 🐛 fix
 - [ ] ♻️ refactor
 - [ ] 💄 style
-- [ ] 🔨 chore
+- [ ] 👷 build
 - [ ] ⚡️ perf
+- [ ] ✅ test
 - [ ] 📝 docs
+- [ ] 🔨 chore
 
 #### 🔀 变更说明 | Description of Change
 

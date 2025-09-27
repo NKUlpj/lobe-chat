@@ -1,59 +1,61 @@
 'use client';
 
-import { Form, type FormItemProps, Icon, type ItemGroup, Tooltip } from '@lobehub/ui';
-import { Button } from 'antd';
+import { Button, Form, type FormGroupItemType, type FormItemProps, Tooltip } from '@lobehub/ui';
+import { useUpdateEffect } from 'ahooks';
 import isEqual from 'fast-deep-equal';
-import { isString } from 'lodash-es';
 import { Wand2 } from 'lucide-react';
-import dynamic from 'next/dynamic';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { FORM_STYLE } from '@/const/layoutTokens';
-import { useUserStore } from '@/store/user';
-import { userGeneralSettingsSelectors } from '@/store/user/selectors';
+import { INBOX_SESSION_ID } from '@/const/session';
+import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 
-import { useStore } from '../store';
-import { SessionLoadingState } from '../store/initialState';
+import { selectors, useStore } from '../store';
+import AutoGenerateAvatar from './AutoGenerateAvatar';
 import AutoGenerateInput from './AutoGenerateInput';
 import AutoGenerateSelect from './AutoGenerateSelect';
 import BackgroundSwatches from './BackgroundSwatches';
 
-const EmojiPicker = dynamic(() => import('@lobehub/ui/es/EmojiPicker'), { ssr: false });
-
 const AgentMeta = memo(() => {
   const { t } = useTranslation('setting');
-
+  const [form] = Form.useForm();
+  const { isAgentEditable } = useServerConfigStore(featureFlagsSelectors);
   const [hasSystemRole, updateMeta, autocompleteMeta, autocompleteAllMeta] = useStore((s) => [
     !!s.config.systemRole,
     s.setAgentMeta,
     s.autocompleteMeta,
     s.autocompleteAllMeta,
   ]);
-  const locale = useUserStore(userGeneralSettingsSelectors.currentLanguage);
-  const loading = useStore((s) => s.autocompleteLoading);
-  const meta = useStore((s) => s.meta, isEqual);
+  const [isInbox, loadingState] = useStore((s) => [s.id === INBOX_SESSION_ID, s.loadingState]);
+  const meta = useStore(selectors.currentMetaConfig, isEqual);
+  const [background, setBackground] = useState(meta.backgroundColor);
+
+  useUpdateEffect(() => {
+    form.setFieldsValue(meta);
+  }, [meta]);
+
+  if (isInbox) return;
 
   const basic = [
     {
       Render: AutoGenerateInput,
       key: 'title',
       label: t('settingAgent.name.title'),
-      onChange: (e: any) => updateMeta({ title: e.target.value }),
       placeholder: t('settingAgent.name.placeholder'),
     },
     {
       Render: AutoGenerateInput,
+      desc: t('settingAgent.description.desc'),
       key: 'description',
       label: t('settingAgent.description.title'),
-      onChange: (e: any) => updateMeta({ description: e.target.value }),
       placeholder: t('settingAgent.description.placeholder'),
     },
     {
       Render: AutoGenerateSelect,
+      desc: t('settingAgent.tag.desc'),
       key: 'tags',
       label: t('settingAgent.tag.title'),
-      onChange: (e: any) => updateMeta({ tags: isString(e) ? e.split(',') : e }),
       placeholder: t('settingAgent.tag.placeholder'),
     },
   ];
@@ -64,42 +66,39 @@ const AgentMeta = memo(() => {
       children: (
         <AutoGenerate
           canAutoGenerate={hasSystemRole}
-          loading={loading[item.key as keyof SessionLoadingState]}
-          onChange={item.onChange}
+          loading={loadingState?.[item.key]}
           onGenerate={() => {
             autocompleteMeta(item.key as keyof typeof meta);
           }}
           placeholder={item.placeholder}
-          value={meta[item.key as keyof typeof meta]}
         />
       ),
       label: item.label,
+      name: item.key,
     };
   });
 
-  const metaData: ItemGroup = {
+  const metaData: FormGroupItemType = {
     children: [
       {
         children: (
-          <EmojiPicker
-            backgroundColor={meta.backgroundColor}
-            locale={locale}
-            onChange={(avatar) => updateMeta({ avatar })}
-            value={meta.avatar}
+          <AutoGenerateAvatar
+            background={background}
+            canAutoGenerate={hasSystemRole}
+            loading={loadingState?.['avatar']}
+            onGenerate={() => autocompleteMeta('avatar')}
           />
         ),
         label: t('settingAgent.avatar.title'),
+        layout: 'horizontal',
         minWidth: undefined,
+        name: 'avatar',
       },
       {
-        children: (
-          <BackgroundSwatches
-            backgroundColor={meta.backgroundColor}
-            onChange={(backgroundColor) => updateMeta({ backgroundColor })}
-          />
-        ),
+        children: <BackgroundSwatches onValuesChange={(c) => setBackground(c)} />,
         label: t('settingAgent.backgroundColor.title'),
         minWidth: undefined,
+        name: 'backgroundColor',
       },
       ...autocompleteItems,
     ],
@@ -113,11 +112,14 @@ const AgentMeta = memo(() => {
       >
         <Button
           disabled={!hasSystemRole}
-          icon={<Icon icon={Wand2} />}
-          loading={Object.values(loading).some((i) => !!i)}
+          icon={Wand2}
+          iconPosition={'end'}
+          iconProps={{
+            size: 12,
+          }}
+          loading={Object.values(loadingState as any).some((i) => !!i)}
           onClick={(e: any) => {
             e.stopPropagation();
-
             autocompleteAllMeta(true);
           }}
           size={'small'}
@@ -129,7 +131,28 @@ const AgentMeta = memo(() => {
     title: t('settingAgent.title'),
   };
 
-  return <Form items={[metaData]} itemsType={'group'} variant={'pure'} {...FORM_STYLE} />;
+  return (
+    <Form
+      disabled={!isAgentEditable}
+      footer={
+        <Form.SubmitFooter
+          texts={{
+            reset: t('submitFooter.reset'),
+            submit: t('settingAgent.submit'),
+            unSaved: t('submitFooter.unSaved'),
+            unSavedWarning: t('submitFooter.unSavedWarning'),
+          }}
+        />
+      }
+      form={form}
+      initialValues={meta}
+      items={[metaData]}
+      itemsType={'group'}
+      onFinish={updateMeta}
+      variant={'borderless'}
+      {...FORM_STYLE}
+    />
+  );
 });
 
 export default AgentMeta;

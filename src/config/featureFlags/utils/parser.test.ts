@@ -8,7 +8,7 @@ describe('parseFeatureFlag', () => {
   });
 
   it('should enable a feature when prefixed with +', () => {
-    expect(parseFeatureFlag('+webrtc_sync')).toEqual({ webrtc_sync: true });
+    expect(parseFeatureFlag('+api_key_manage')).toEqual({ api_key_manage: true });
   });
 
   it('should disable a feature when prefixed with -', () => {
@@ -16,11 +16,19 @@ describe('parseFeatureFlag', () => {
   });
 
   it('should handle multiple flags separated by commas', () => {
-    const input = '+webrtc_sync,-openai_api_key,+another_feature';
+    const input = '+api_key_manage,-openai_api_key,+another_feature';
 
     expect(parseFeatureFlag(input)).toEqual({
-      webrtc_sync: true,
+      api_key_manage: true,
       openai_api_key: false,
+    });
+  });
+
+  it('should hide content with commercial flags', () => {
+    const input = '+commercial_hide_github,+commercial_hide_docs';
+    expect(parseFeatureFlag(input)).toEqual({
+      commercial_hide_docs: true,
+      commercial_hide_github: true,
     });
   });
 
@@ -45,19 +53,19 @@ describe('parseFeatureFlag', () => {
   });
 
   it('should handle flags separated by Chinese commas', () => {
-    const input = '+webrtc_sync，-openai_api_key';
+    const input = '+api_key_manage，-openai_api_key';
 
     expect(parseFeatureFlag(input)).toEqual({
-      webrtc_sync: true,
+      api_key_manage: true,
       openai_api_key: false,
     });
   });
 
   it('should ignore whitespace around flags', () => {
-    const input = '  +webrtc_sync  ,  -openai_api_key  ';
+    const input = '  +api_key_manage  ,  -openai_api_key  ';
 
     expect(parseFeatureFlag(input)).toEqual({
-      webrtc_sync: true,
+      api_key_manage: true,
       openai_api_key: false,
     });
   });

@@ -1,15 +1,19 @@
-import { ThemeMode } from 'antd-style';
 import isEqual from 'fast-deep-equal';
-import { DeepPartial } from 'utility-types';
+import type { PartialDeep } from 'type-fest';
 import type { StateCreator } from 'zustand/vanilla';
 
+import { MESSAGE_CANCEL_FLAT } from '@/const/message';
 import { shareService } from '@/services/share';
 import { userService } from '@/services/user';
 import type { UserStore } from '@/store/user';
-import { LocaleMode } from '@/types/locale';
 import { LobeAgentSettings } from '@/types/session';
-import { UserGeneralConfig, UserKeyVaults, UserSettings } from '@/types/user/settings';
-import { switchLang } from '@/utils/client/switchLang';
+import {
+  SystemAgentItem,
+  UserGeneralConfig,
+  UserKeyVaults,
+  UserSettings,
+  UserSystemAgentConfigKey,
+} from '@/types/user/settings';
 import { difference } from '@/utils/difference';
 import { merge } from '@/utils/merge';
 
@@ -18,14 +22,15 @@ export interface UserSettingsAction {
   importUrlShareSettings: (settingsParams: string | null) => Promise<void>;
   internal_createSignal: () => AbortController;
   resetSettings: () => Promise<void>;
-  setSettings: (settings: DeepPartial<UserSettings>) => Promise<void>;
-  switchLocale: (locale: LocaleMode) => Promise<void>;
-  switchThemeMode: (themeMode: ThemeMode) => Promise<void>;
-  updateDefaultAgent: (agent: DeepPartial<LobeAgentSettings>) => Promise<void>;
+  setSettings: (settings: PartialDeep<UserSettings>) => Promise<void>;
+  updateDefaultAgent: (agent: PartialDeep<LobeAgentSettings>) => Promise<void>;
   updateGeneralConfig: (settings: Partial<UserGeneralConfig>) => Promise<void>;
   updateKeyVaults: (settings: Partial<UserKeyVaults>) => Promise<void>;
 
-  updateSystemAgent: (key: string, value: { model: string; provider: string }) => Promise<void>;
+  updateSystemAgent: (
+    key: UserSystemAgentConfigKey,
+    value: Partial<SystemAgentItem>,
+  ) => Promise<void>;
 }
 
 export const createSettingsSlice: StateCreator<
@@ -57,7 +62,8 @@ export const createSettingsSlice: StateCreator<
 
   internal_createSignal: () => {
     const abortController = get().updateSettingsSignal;
-    if (abortController && !abortController.signal.aborted) abortController.abort('canceled');
+    if (abortController && !abortController.signal.aborted)
+      abortController.abort(MESSAGE_CANCEL_FLAT);
 
     const newSignal = new AbortController();
 
@@ -84,14 +90,6 @@ export const createSettingsSlice: StateCreator<
     await userService.updateUserSettings(diffs, abortController.signal);
     await get().refreshUserState();
   },
-  switchLocale: async (locale) => {
-    await get().updateGeneralConfig({ language: locale });
-
-    switchLang(locale);
-  },
-  switchThemeMode: async (themeMode) => {
-    await get().updateGeneralConfig({ themeMode });
-  },
   updateDefaultAgent: async (defaultAgent) => {
     await get().setSettings({ defaultAgent });
   },
@@ -101,9 +99,9 @@ export const createSettingsSlice: StateCreator<
   updateKeyVaults: async (keyVaults) => {
     await get().setSettings({ keyVaults });
   },
-  updateSystemAgent: async (key, { provider, model }) => {
+  updateSystemAgent: async (key, value) => {
     await get().setSettings({
-      systemAgent: { [key]: { model, provider } },
+      systemAgent: { [key]: { ...value } },
     });
   },
 });

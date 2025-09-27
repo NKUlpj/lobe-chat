@@ -1,32 +1,41 @@
-import { ActionIcon, DiscordIcon, Icon } from '@lobehub/ui';
+import { Hotkey, Icon } from '@lobehub/ui';
+import { DiscordIcon } from '@lobehub/ui/icons';
 import { Badge } from 'antd';
+import { ItemType } from 'antd/es/menu/interface';
 import {
   Book,
   CircleUserRound,
+  Cloudy,
   Download,
   Feather,
+  FileClockIcon,
   HardDriveDownload,
-  HardDriveUpload,
   LifeBuoy,
   LogOut,
   Mail,
-  Maximize,
   Settings2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { PropsWithChildren, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Flexbox } from 'react-layout-kit';
-import urlJoin from 'url-join';
 
 import type { MenuProps } from '@/components/Menu';
-import { DISCORD, DOCUMENTS, EMAIL_SUPPORT, GITHUB_ISSUES, mailTo } from '@/const/url';
+import { enableAuth } from '@/const/auth';
+import { BRANDING_EMAIL, LOBE_CHAT_CLOUD, SOCIAL_URL } from '@/const/branding';
+import { DEFAULT_DESKTOP_HOTKEY_CONFIG } from '@/const/desktop';
+import {
+  CHANGELOG,
+  DOCUMENTS_REFER_URL,
+  GITHUB_ISSUES,
+  OFFICIAL_URL,
+  UTM_SOURCE,
+  mailTo,
+} from '@/const/url';
+import { isDesktop } from '@/const/version';
 import DataImporter from '@/features/DataImporter';
-import { useOpenSettings } from '@/hooks/useInterceptingRoutes';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
-import { useQueryRoute } from '@/hooks/useQueryRoute';
-import { configService } from '@/services/config';
-import { SettingsTabs } from '@/store/global/initialState';
+import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
 import { useUserStore } from '@/store/user';
 import { authSelectors } from '@/store/user/selectors';
 
@@ -37,7 +46,7 @@ const NewVersionBadge = memo(
     children,
     showBadge,
     onClick,
-  }: PropsWithChildren & { onClick: () => void; showBadge?: boolean }) => {
+  }: PropsWithChildren & { onClick?: () => void; showBadge?: boolean }) => {
     const { t } = useTranslation('common');
     if (!showBadge)
       return (
@@ -55,43 +64,36 @@ const NewVersionBadge = memo(
 );
 
 export const useMenu = () => {
-  const router = useQueryRoute();
   const { canInstall, install } = usePWAInstall();
   const hasNewVersion = useNewVersion();
-  const openSettings = useOpenSettings();
   const { t } = useTranslation(['common', 'setting', 'auth']);
-  const [isLogin, isLoginWithAuth, isLoginWithClerk, openUserProfile] = useUserStore((s) => [
+  const { showCloudPromotion, hideDocs } = useServerConfigStore(featureFlagsSelectors);
+  const [isLogin, isLoginWithAuth] = useUserStore((s) => [
     authSelectors.isLogin(s),
     authSelectors.isLoginWithAuth(s),
-    authSelectors.isLoginWithClerk(s),
-    s.openUserProfile,
   ]);
 
   const profile: MenuProps['items'] = [
     {
       icon: <Icon icon={CircleUserRound} />,
       key: 'profile',
-      label: t('userPanel.profile'),
-      onClick: () => openUserProfile(),
+      label: <Link href={'/profile'}>{t('userPanel.profile')}</Link>,
     },
   ];
 
   const settings: MenuProps['items'] = [
     {
+      extra: isDesktop ? (
+        <div>
+          <Hotkey keys={DEFAULT_DESKTOP_HOTKEY_CONFIG.openSettings} />
+        </div>
+      ) : undefined,
       icon: <Icon icon={Settings2} />,
       key: 'setting',
       label: (
-        <Flexbox align={'center'} gap={8} horizontal>
-          <NewVersionBadge onClick={openSettings} showBadge={hasNewVersion}>
-            {t('userPanel.setting')}
-          </NewVersionBadge>
-          <ActionIcon
-            icon={Maximize}
-            onClick={() => router.push(urlJoin('/settings', SettingsTabs.Common))}
-            size={'small'}
-            title={t('fullscreen')}
-          />
-        </Flexbox>
+        <Link href={'/settings'}>
+          <NewVersionBadge showBadge={hasNewVersion}>{t('userPanel.setting')}</NewVersionBadge>
+        </Link>
       ),
     },
     {
@@ -115,56 +117,33 @@ export const useMenu = () => {
     },
   ];
 
-  const data: MenuProps['items'] = [
-    {
-      icon: <Icon icon={HardDriveUpload} />,
-      key: 'import',
-      label: <DataImporter>{t('import')}</DataImporter>,
-    },
-    {
-      children: [
+  const data = !isLogin
+    ? []
+    : ([
         {
-          key: 'allAgent',
-          label: t('exportType.allAgent'),
-          onClick: configService.exportAgents,
-        },
-        {
-          key: 'allAgentWithMessage',
-          label: t('exportType.allAgentWithMessage'),
-          onClick: configService.exportSessions,
-        },
-        {
-          key: 'globalSetting',
-          label: t('exportType.globalSetting'),
-          onClick: configService.exportSettings,
+          icon: <Icon icon={HardDriveDownload} />,
+          key: 'import',
+          label: <DataImporter>{t('importData')}</DataImporter>,
         },
         {
           type: 'divider',
         },
-        {
-          key: 'all',
-          label: t('exportType.all'),
-          onClick: configService.exportAll,
-        },
-      ],
-      icon: <Icon icon={HardDriveDownload} />,
-      key: 'export',
-      label: t('export'),
-    },
-    {
-      type: 'divider',
-    },
-  ];
+      ].filter(Boolean) as ItemType[]);
 
   const helps: MenuProps['items'] = [
-    {
-      icon: <Icon icon={DiscordIcon} />,
-      key: 'discord',
+    showCloudPromotion && {
+      icon: <Icon icon={Cloudy} />,
+      key: 'cloud',
       label: (
-        <Link href={DISCORD} target={'_blank'}>
-          {t('userPanel.discord')}
+        <Link href={`${OFFICIAL_URL}?utm_source=${UTM_SOURCE}`} target={'_blank'}>
+          {t('userPanel.cloud', { name: LOBE_CHAT_CLOUD })}
         </Link>
       ),
+    },
+    {
+      icon: <Icon icon={FileClockIcon} />,
+      key: 'changelog',
+      label: <Link href={isDesktop ? CHANGELOG : '/changelog/modal'}>{t('changelog')}</Link>,
     },
     {
       children: [
@@ -172,7 +151,7 @@ export const useMenu = () => {
           icon: <Icon icon={Book} />,
           key: 'docs',
           label: (
-            <Link href={DOCUMENTS} target={'_blank'}>
+            <Link href={DOCUMENTS_REFER_URL} target={'_blank'}>
               {t('userPanel.docs')}
             </Link>
           ),
@@ -187,10 +166,19 @@ export const useMenu = () => {
           ),
         },
         {
+          icon: <Icon icon={DiscordIcon} />,
+          key: 'discord',
+          label: (
+            <Link href={SOCIAL_URL.discord} target={'_blank'}>
+              {t('userPanel.discord')}
+            </Link>
+          ),
+        },
+        {
           icon: <Icon icon={Mail} />,
           key: 'email',
           label: (
-            <Link href={mailTo(EMAIL_SUPPORT)} target={'_blank'}>
+            <Link href={mailTo(BRANDING_EMAIL.support)} target={'_blank'}>
               {t('userPanel.email')}
             </Link>
           ),
@@ -203,20 +191,20 @@ export const useMenu = () => {
     {
       type: 'divider',
     },
-  ];
+  ].filter(Boolean) as ItemType[];
 
   const mainItems = [
     {
       type: 'divider',
     },
-    ...(isLoginWithClerk ? profile : []),
+    ...(!enableAuth || (enableAuth && isLoginWithAuth) ? profile : []),
     ...(isLogin ? settings : []),
     /* ↓ cloud slot ↓ */
 
     /* ↑ cloud slot ↑ */
     ...(canInstall ? pwa : []),
-    ...(isLogin ? data : []),
-    ...helps,
+    ...data,
+    ...(!hideDocs ? helps : []),
   ].filter(Boolean) as MenuProps['items'];
 
   const logoutItems: MenuProps['items'] = isLoginWithAuth
